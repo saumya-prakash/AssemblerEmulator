@@ -1,6 +1,5 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+
 #include <ctype.h>
 #include <error.h>
 
@@ -30,14 +29,19 @@ int main(int argc, char **argv)
 
     while(fgets(line, 100, src))
     {
-        /* fputs(line, stdout); */
+        fputs(line, stdout);
 
-        char* tmp;
+        char tmp[100];
 
-        while(sscanf(line, "%s", tmp))
-        {
-            printf("%s\n", line);
-        }
+        sscanf(line, "%s ", tmp);
+        printf("%s\n", tmp);
+        
+        sscanf(line, "%s ", tmp);
+        printf("%s\n", tmp);
+
+        sscanf(line, "%s ", tmp);
+        printf("%s\n", tmp);
+        
 
     }
     

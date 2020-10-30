@@ -8,7 +8,7 @@ asm:	assembler.c tables.o
 			$(CC) $(FLAGS) assembler.c tables.o -o asm
 
 
-tables:	tables.h tables.c
+tables.o:	tables.h tables.c
 			$(CC) -c $(FLAGS) tables.c
 
 
