@@ -6,6 +6,8 @@
 #include "tables.h"
 
 
+#define LINE_LENGTH 1000
+
 int main(int argc, char **argv)
 {        
     FILE *src = NULL;       /* FILE pointer for source asm file */ 
@@ -25,23 +27,34 @@ int main(int argc, char **argv)
     }
 
     
-    char line[100] = {'\0'};
+    char line[LINE_LENGTH] = {'\0'};
 
-    while(fgets(line, 100, src))
+    while(fgets(line, LINE_LENGTH, src))
     {
-        fputs(line, stdout);
+        char* ptr = line;
 
-        char tmp[100];
+        while(*ptr!='\n' && *ptr!=';')
+            ++ptr;
 
-        sscanf(line, "%s ", tmp);
-        printf("%s\n", tmp);
+        *ptr = '\0';    /* ignore whaatever comes after ';' */
         
-        sscanf(line, "%s ", tmp);
-        printf("%s\n", tmp);
+        ptr = line;
+        while(*ptr!='\0')   /* printing only non-empty lines */
+        {
+            if(isprint(*ptr))
+            {
+                fputs(line, stdout);
+                printf("\n");
 
-        sscanf(line, "%s ", tmp);
-        printf("%s\n", tmp);
-        
+                break;
+            }
+
+            ++ptr;
+        }
+
+        /* char tmp1[100], tmp2[100], tmp3[100]; */
+        /* sscanf(line, "%s %s %s ", tmp1, tmp2, tmp3); */
+        /* printf("%s %s %s\n", tmp1, tmp2, tmp3); */
 
     }
     

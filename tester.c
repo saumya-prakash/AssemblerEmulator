@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-
+#include <ctype.h>
 
 unsigned hash(const char *name)
 {
@@ -19,6 +19,8 @@ unsigned hash(const char *name)
 int main()
 {
     printf("%u %u\n", hash("a"), hash("A"));
+
+    printf("%d\n", isprint('\t'));
 
 
 
