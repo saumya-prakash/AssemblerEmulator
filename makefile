@@ -4,13 +4,16 @@ FLAGS = -std=c89 -pedantic -W -Wall -Wpointer-arith -Wwrite-strings -Wstrict-pro
 
 
 
-asm:	assembler.c tables.o
-			$(CC) $(FLAGS) assembler.c tables.o -o asm
+asm:	assembler.o tables.o
+			$(CC) $(FLAGS) assembler.o tables.o -o asm
 
+
+assembler.o:	assembler.c
+					$(CC) -c $(FLAGS) assembler.c
 
 tables.o:	tables.h tables.c
 			$(CC) -c $(FLAGS) tables.c
 
 
 clean:	
-		rm -i ./asm
+		rm  a.out asm tables.o assembler.o

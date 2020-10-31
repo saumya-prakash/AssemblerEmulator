@@ -3,26 +3,15 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-unsigned hash(const char *name)
-{
-    unsigned res = 0;
-    
-    while(*name!='\0')
-    {
-        res += *name;
-        ++name;
-    }
-
-    return res%26;
-}
+int* arr[26] = {NULL};
 
 int main()
 {
-    printf("%u %u\n", hash("a"), hash("A"));
-
-    printf("%d\n", isprint('\t'));
-
-
+    for(int i=0; i<26; ++i)
+    {
+        if(arr[i]==NULL)
+            printf("12\n");
+    }
 
     return 0;
 }

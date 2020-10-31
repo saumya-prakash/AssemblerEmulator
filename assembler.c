@@ -8,6 +8,8 @@
 
 #define LINE_LENGTH 1000
 
+
+
 int main(int argc, char **argv)
 {        
     FILE *src = NULL;       /* FILE pointer for source asm file */ 
@@ -36,8 +38,9 @@ int main(int argc, char **argv)
         while(*ptr!='\n' && *ptr!=';')
             ++ptr;
 
-        *ptr = '\0';    /* ignore whaatever comes after ';' */
-        
+        *ptr = '\0';    /* ignore whatever comes after ';' */
+
+
         ptr = line;
         while(*ptr!='\0')   /* printing only non-empty lines */
         {
@@ -56,8 +59,8 @@ int main(int argc, char **argv)
         /* sscanf(line, "%s %s %s ", tmp1, tmp2, tmp3); */
         /* printf("%s %s %s\n", tmp1, tmp2, tmp3); */
 
-    }
     
+    }
 
 
     fclose(src);    /* close source file */
