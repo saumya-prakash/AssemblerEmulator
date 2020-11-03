@@ -17,3 +17,7 @@ next:
     	ldc loop ; load code address
 	ldc var1 ; forward ref
 var1:data 0 ; a variable
+
+SET 0x33
+
+
