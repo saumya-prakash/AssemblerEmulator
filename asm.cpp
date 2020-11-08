@@ -1,4 +1,4 @@
-#include <iostream>
+// #include <iostream>
 
 #include "Assembler.h"
 
@@ -26,8 +26,17 @@ int main(int argc, char **argv)
     Assembler a1(src, argv[1]);
 
     a1.assemble();
+    cout<<"Lines for pass-2: "<<endl;
     a1.print_lines(cout);
+    cout<<endl;
+    
+    cout<<"Errors: "<<endl;
+    a1.print_errors(cout);
+    cout<<endl;
 
+    cout<<"Symbol Table: "<<endl;
+    a1.print_symtab(cout);
+    cout<<endl;
 
 
     // string s;
