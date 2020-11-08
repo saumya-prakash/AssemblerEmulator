@@ -39,7 +39,8 @@ map<unsigned, string> Error::errtab = {
 
 map<unsigned, string> Warning::warntab = {  
                                             {0, "Deafult warning"},
-                                            {1, "Unused variable"}
+                                            {1, "Unused variable"},
+                                            {2, "No preceding label"}   /* When SET doesn't have a corresponding label; not to be used with data directive! */
 };
 
 
@@ -207,6 +208,7 @@ void Assembler::analyze(string& s)
                 int a = str_to_int(num);
 
                 l.addr = a;
+                l.line_no = line_cnt;
 
                 insert_into_symtab(l);  // will take care of insertion, error-detection
             }
@@ -249,9 +251,14 @@ void Assembler::analyze(string& s)
             {
                 int value = str_to_int(num);
 
-                data_to_reserve[data] = value;
+                data_to_reserve[data_addr] = value;
+                
+                l.addr = data_addr;
+                l.line_no = line_cnt;
 
-                data++;     // incrementing by 1 as it is a word-addressable machine
+                insert_into_symtab(l);
+
+                data_addr++;     // incrementing by 1 as it is a word-addressable machine
             }
 
             return ;    // ANALYSIS COMPLETE HERE
@@ -268,6 +275,7 @@ void Assembler::analyze(string& s)
             }
 
             l.addr = pc;
+            l.line_no = line_cnt;
             if(!t1.empty())     // some mnemonic should be there after label -> otherwise no need to increment PC and insert line to linked list
             {
                 struct line ll(tmp2, line_cnt, pc);
@@ -282,39 +290,103 @@ void Assembler::analyze(string& s)
 
             return;     // ANALYSIS COMPLETE HERE
         }
-
     }
 
 
-    // else        // not a labeled statement
-    // {
-    //     istringstream iss(s);
-    //     string t2;
+    else        // not a labeled statement
+    {
+        istringstream iss(s);
+        string t1;
 
-    //     iss>>t2;
+        iss>>t1;
 
-    //     if(t2=="data")      // directive -> process this
-    //     {
-    //         ;           // store at some suitable place to process later
-    //     }
+        if(t1=="SET")   // no label, so processing SET is not at all required
+        {
+            warnings.insert({line_cnt, Warning(2)});
 
-    //     else        // some statement with instruction
-    //     {
-    //         it->pc = tpc;
-    //         ++tpc;
-    //     }     
-    // }
-    
+            string less, more;
+
+            iss>>less;
+            if(less.empty())
+            {
+                errors.insert({line_cnt, Error(9)});
+                return;     // nothing to be done now
+            }
+
+            t1 = less;
+            if(valid_number(t1)==false)
+            {
+                errors.insert({line_cnt, Error(8)});   // generate Number expected error
+            }
+
+            iss>>more;
+            if(!more.empty())   // more operands than required
+            {
+                errors.insert({line_cnt, Error(6)});
+            }
+
+            return ;    // ANALYSIS DONE HERE
+        }
+
+        else if(t1=="data")
+        {
+            string less, more;
+            int flag = 0;
+
+            iss>>less;
+            if(less.empty())
+            {
+                errors.insert({line_cnt, Error(9)});
+                return;     // nothing to do now
+            }
+
+            t1 = less;
+            if(valid_number(t1)==false)
+            {
+                errors.insert({line_cnt, Error(8)});   // generate Number expected error
+                flag = 1;
+            }
+
+            iss>>more;
+            if(!more.empty())       // too many operands
+            {
+                errors.insert({line_cnt, Error(6)});
+                flag = 1;
+            }
+
+            if(flag==0)     // okay to reserve memory
+            {
+                int a = str_to_int(t1);
+                data_to_reserve[data_addr] = a;
+
+                data_addr++;
+            }
+
+            return;     // ANALYSIS COMPLETE HERE
+        }
+
+        else        // some simple statement - mnemonic followed by operands (0 or more)
+        {
+            struct line ll(s, line_cnt, pc);
+            pc++;
+
+            lines.push_back(ll);
+
+            return ;
+        }
+    }
 
     return ;
 }
+
+
 
 void Assembler::second_pass()
 {
-    
 
     return ;
 }
+
 
 
             /* assembler helper functions  */
@@ -366,5 +438,16 @@ void Assembler::print_symtab(ostream& os) const
         struct label l = it->second;
 
         os<<name<<'\t'<<l.addr<<endl;
+    }
+}
+
+void Assembler::print_warnings(ostream& os) const
+{
+    for(map<unsigned, class Warning>::const_iterator it=warnings.begin(); it!=warnings.end(); ++it)
+    {
+        unsigned a = it->first;
+        class Warning b = it->second;
+
+        os<<"Line "<<a<<": "<<b.message<<endl;
     }
 }

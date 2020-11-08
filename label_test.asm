@@ -1,3 +1,7 @@
-lp: SET 
+lp1: 
+lp2:
 
-1p:  
+array: data 20
+res:       data 40
+
+

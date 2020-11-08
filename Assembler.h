@@ -14,6 +14,7 @@
 
 using std::string;
 using std::map;
+using std::set;
 using std::multimap;
 using std::pair;
 using std::list;
@@ -31,11 +32,11 @@ using std::flush;
 struct label
 {
     string name;
-    unsigned int addr, use_cnt;  
+    unsigned int addr, use_cnt, line_no;  
 
-    label(string s, unsigned int a): name(validate(s)), addr(a), use_cnt(0) {}
+    label(string s, unsigned int a): name(validate(s)), addr(a), use_cnt(0), line_no(0) {}
 
-    label(): name(string()), addr(-1), use_cnt(0) {}
+    label(): name(string()), addr(-1), use_cnt(0), line_no(0) {}
 
     private:
         string validate(const string &s)
@@ -76,30 +77,30 @@ class Assembler
     private:
         static map<string, pair<i_type, encoding> > optab;    // opcode table
         
-        map<string, struct label> symtab;   // symbol table
-
+        map<string, struct label> symtab;       // symbol table
         map<unsigned, unsigned> data_to_reserve;
-
 
         list<struct line> lines;       // to store the read source file
 
         ifstream &src;      // reference to the openend file stream for reading
         string filename;    // to store the filename -> will be used to name output files
 
-        unsigned pc, data, line_cnt;    // program counter
+        unsigned pc, data_addr, line_cnt;    // program counter
 
         multimap<unsigned, class Error> errors;    // stores errors line no. wise
-
+        multimap<unsigned, class Warning> warnings; // stores warnings (some with line number, some independent)
 
     public:
 
-        Assembler(ifstream &a, const string &b): src(a), filename(b), pc(0), data(0x00010000), line_cnt(0)   {}
+        Assembler(ifstream &a, const string &b): src(a), filename(b), pc(0), data_addr(0x00010000), line_cnt(0)   {}
 
         void assemble() ;
 
         void print_lines(ostream&) const;
 
         void print_errors(ostream&) const;
+
+        void print_warnings(ostream&) const;
 
         void print_symtab(ostream&) const;
 
@@ -132,13 +133,14 @@ class Error
 
 
 
-
 class Warning
 {
     friend class Assembler;
-
     private:
         static map<unsigned, string> warntab;
+        string message;
+
+        Warning(unsigned w): message(warntab[w]) {}
 
         // more careful design required as wanings are usually collected after 
         // completing the assembling process
