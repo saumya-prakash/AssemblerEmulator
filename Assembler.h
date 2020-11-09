@@ -18,16 +18,33 @@ using std::set;
 using std::multimap;
 using std::pair;
 using std::list;
+
 using std::ifstream;
+using std::ofstream;
 using std::ostream;
 using std::istringstream;
 using std::stringstream;
-using std::hex;
-using std::oct;
-using std::dec;
+
+using std::cin;
+using std::cout;
+
 using std::endl;
 using std::ends;
 using std::flush;
+
+using std::hex;
+using std::oct;
+using std::dec;
+
+
+
+class Assembler;
+class Error;
+
+struct label;
+struct line;
+
+
 
 struct label
 {
@@ -57,52 +74,58 @@ struct label
 struct line
 {
     string s;
-    unsigned line_no, addr;
+    unsigned line_no, addr, encoding;
 
-    line(string a, unsigned b, unsigned c):s(a), line_no(b), addr(c) {}
+    line(string a, unsigned b, unsigned c):s(a), line_no(b), addr(c), encoding(0) {}
 };
 
 
-class Assembler;
-class Error;
 
 
 class Assembler
 {
-
     public:
-        typedef unsigned int encoding;
-        typedef unsigned int i_type;
+        enum endianess {little_endian, big_endian};
 
     private:
-        static map<string, pair<i_type, encoding> > optab;    // opcode table
+        static map<string, pair<unsigned, unsigned> > optab;    // opcode table
         
         map<string, struct label> symtab;       // symbol table
         map<unsigned, unsigned> data_to_reserve;
 
-        list<struct line> lines;       // to store the read source file
+        list<struct line> lines;       // stores lines required in pass-2
+        list<struct line> aux_lines;    // stores lines that are not required in pass-2
+
+        unsigned pc, data_addr, line_cnt;    // program counter
 
         ifstream &src;      // reference to the openend file stream for reading
         string filename;    // to store the filename -> will be used to name output files
 
-        unsigned pc, data_addr, line_cnt;    // program counter
 
         multimap<unsigned, class Error> errors;    // stores errors line no. wise
         multimap<unsigned, class Warning> warnings; // stores warnings (some with line number, some independent)
 
+        static enum endianess machine_type;
+        bool assembled;
+
     public:
 
-        Assembler(ifstream &a, const string &b): src(a), filename(b), pc(0), data_addr(0x00010000), line_cnt(0)   {}
+        Assembler(ifstream &a, const string &b): src(a), filename(b), pc(0x00000000), data_addr(0x00010000), line_cnt(0), assembled(false)   {}
 
         void assemble() ;
 
         void print_lines(ostream&) const;
 
+        void print_aux_lines(ostream&) const;
+        
         void print_errors(ostream&) const;
 
         void print_warnings(ostream&) const;
 
         void print_symtab(ostream&) const;
+
+        static enum endianess get_endianess() ;
+
 
     private:
         void first_pass();
@@ -113,6 +136,10 @@ class Assembler
 
         bool valid_number(const string&) const;
         int str_to_int(string&) const;
+
+        void reset_pc() {pc=0x00000000;}
+        void reset_data_addr()  {data_addr=0x00010000;}
+        void reset_line_cnt()   {line_cnt=0;}
 };  
 
 
@@ -147,4 +174,5 @@ class Warning
         // Focus on error part first. Warnings can be taken care of later as well.
 
 };  
+
 

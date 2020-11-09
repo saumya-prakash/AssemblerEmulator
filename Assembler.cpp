@@ -1,6 +1,6 @@
 #include "Assembler.h"
 
-map<string, pair<Assembler::i_type, Assembler::encoding> > optab = {  
+map<string, pair<unsigned, unsigned> > optab = {  
                                             {"ldc", {1, 0}},
                                             {"adc", {1, 1}},
                                             {"ldl", {1, 2}},
@@ -42,6 +42,24 @@ map<unsigned, string> Warning::warntab = {
                                             {1, "Unused variable"},
                                             {2, "No preceding label"}   /* When SET doesn't have a corresponding label; not to be used with data directive! */
 };
+
+
+
+
+enum Assembler::endianess Assembler::get_endianess()
+{
+    unsigned int a = 1;
+
+    char *ptr = (char *) &a;
+
+    if(*ptr==1)
+        return little_endian;
+    
+    else
+        return big_endian;
+}
+
+enum Assembler::endianess machine_type = Assembler::get_endianess();
 
 
 
@@ -111,9 +129,22 @@ int Assembler::str_to_int(string &num) const
 void Assembler::assemble()
 {   
 
+    if(assembled==true)
+        return;
+
+    lines.clear();
+    aux_lines.clear();
+    errors.clear();
+    warnings.clear();
+    reset_pc();
+    reset_data_addr();
+    reset_line_cnt();
+
     first_pass();
 
     second_pass();
+
+    assembled = true;
 
     return ;
 }
@@ -211,7 +242,11 @@ void Assembler::analyze(string& s)
                 l.line_no = line_cnt;
 
                 insert_into_symtab(l);  // will take care of insertion, error-detection
+
+                struct line aux(s, line_cnt, pc);
+                aux_lines.push_back(aux);
             }
+
 
             return;     // ANALYSIS COMPLETE HERE
         }
@@ -257,6 +292,9 @@ void Assembler::analyze(string& s)
                 l.line_no = line_cnt;
 
                 insert_into_symtab(l);
+                
+                struct line aux(s, line_cnt, data_addr);
+                aux_lines.push_back(aux);
 
                 data_addr++;     // incrementing by 1 as it is a word-addressable machine
             }
@@ -276,6 +314,17 @@ void Assembler::analyze(string& s)
 
             l.addr = pc;
             l.line_no = line_cnt;
+
+
+            if(flag==0)
+            { 
+                insert_into_symtab(l);
+
+                struct line aux(l.name+":", line_cnt, pc);
+                aux_lines.push_back(aux);
+            }
+
+
             if(!t1.empty())     // some mnemonic should be there after label -> otherwise no need to increment PC and insert line to linked list
             {
                 struct line ll(tmp2, line_cnt, pc);
@@ -283,11 +332,7 @@ void Assembler::analyze(string& s)
                 lines.push_back(ll);
             }
 
-            if(flag==0)
-            { 
-                insert_into_symtab(l);
-            }
-
+       
             return;     // ANALYSIS COMPLETE HERE
         }
     }
@@ -305,6 +350,7 @@ void Assembler::analyze(string& s)
             warnings.insert({line_cnt, Warning(2)});
 
             string less, more;
+            int flag = 0;
 
             iss>>less;
             if(less.empty())
@@ -317,12 +363,21 @@ void Assembler::analyze(string& s)
             if(valid_number(t1)==false)
             {
                 errors.insert({line_cnt, Error(8)});   // generate Number expected error
+                flag = 1;
             }
 
             iss>>more;
             if(!more.empty())   // more operands than required
             {
                 errors.insert({line_cnt, Error(6)});
+                flag = 1;
+            }
+
+            if(flag==0)
+            {
+                cout<<"Hello"<<endl;
+                struct line aux(s, line_cnt, pc);
+                aux_lines.push_back(aux);
             }
 
             return ;    // ANALYSIS DONE HERE
@@ -358,6 +413,9 @@ void Assembler::analyze(string& s)
             {
                 int a = str_to_int(t1);
                 data_to_reserve[data_addr] = a;
+
+                struct line aux(s, line_cnt, data_addr);
+                aux_lines.push_back(aux);
 
                 data_addr++;
             }
@@ -413,7 +471,14 @@ void Assembler::insert_into_symtab(struct label& l)
 void Assembler::print_lines(ostream &os) const
 {
     for(list<struct line>::const_iterator it=lines.begin(); it!=lines.end(); ++it)
-        os<<it->line_no<<": "<<it->s<<endl;
+        os<<it->line_no<<": "<<it->s<<'\t'<<it->addr<<endl;
+}
+
+
+void Assembler::print_aux_lines(ostream &os) const
+{
+    for(list<struct line>::const_iterator it=aux_lines.begin(); it!=aux_lines.end(); ++it)
+        os<<it->line_no<<": "<<it->s<<"\t"<<it->addr<<endl;
 }
 
 void Assembler::print_errors(ostream &os) const

@@ -1,23 +1,12 @@
-lp1:
-lp2:
-lp3:
-lp4:
+done:   ldc 12
+        ldc 0
 
-	lp5:	ldc 20
+SET 12
 
-label:	; an unused label
-	ldc 0
-	ldc -5
-	ldc +5
+dd:
+ee:
 
-loop:
- 		br loop ; an infinite loop
-br next	;offset should be zero
-next:
-    	ldc loop ; load code address
-	ldc var1 ; forward ref
-var1:data 0 ; a variable
+a2sp
 
-SET 0x33
 
 
