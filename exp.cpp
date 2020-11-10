@@ -3,13 +3,16 @@
 using namespace std;
 
 
+
 int main()
 {
-    int a = -1;
 
-    cin>>a;
+    cout<<setfill('0');
+    cout<<setw(10)<<1;
 
-    cout<<a<<endl;
+    cout<<2<<endl;
+
 
     return 0;
 }
+

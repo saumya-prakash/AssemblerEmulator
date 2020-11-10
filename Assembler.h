@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 
 #include <string>
 #include <cctype>
@@ -37,6 +38,8 @@ using std::showbase;
 using std::noshowbase;
 using std::uppercase;
 using std::nouppercase;
+using std::setfill;
+using std::setw;
 
 using std::hex;
 using std::oct;

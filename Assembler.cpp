@@ -684,14 +684,19 @@ void Assembler::generate_listing_file() const
         list<struct line>::const_iterator it = lines.begin();
         list<struct line>::const_iterator jt = aux_lines.begin();
 
-        lst<<showbase;
+
+        lst<<setw(10)<<"MemAddress"<<setw(10)<<"Encoding"<<'\t'<<"Statement"<<endl<<endl;
+
+        lst<<uppercase<<setfill('0');
 
         while(it!=lines.end() && jt!=aux_lines.end())
         {
             if(it->line_no == jt->line_no)
             {
-                lst<<it->addr<<'\t';
+
+                lst<<setw(10)<<it->addr<<'\t';
                 
+                lst<<"0x"<<setw(8);
                 lst<<hex;
                 lst<<it->encoding<<'\t';
                 lst<<dec;
@@ -705,7 +710,7 @@ void Assembler::generate_listing_file() const
 
             else if(it->line_no > jt->line_no)
             {
-                lst<<jt->addr<<'\t'<<'\t'<<jt->s;
+                lst<<setw(10)<<jt->addr<<'\t'<<"            "<<jt->s;
                 lst<<endl;
 
                 jt++;
@@ -713,8 +718,9 @@ void Assembler::generate_listing_file() const
 
             else
             {
-                lst<<it->addr<<'\t';
+                lst<<setw(10)<<it->addr<<'\t';
                 
+                lst<<"0x"<<setw(8);
                 lst<<hex;
                 lst<<it->encoding<<'\t';
                 lst<<dec;
@@ -728,8 +734,9 @@ void Assembler::generate_listing_file() const
 
         while(it!=lines.end())
         {
-            lst<<it->addr<<'\t';
+            lst<<setw(10)<<it->addr<<'\t';
 
+            lst<<"0x"<<setw(8);
             lst<<hex;
             lst<<it->encoding<<'\t';
             lst<<dec;
@@ -742,17 +749,19 @@ void Assembler::generate_listing_file() const
 
         while(jt!=aux_lines.end())
         {
-            lst<<jt->addr<<'\t'<<'\t'<<jt->s;
+            lst<<setw(1)<<jt->addr<<'\t'<<"            "<<jt->s;
             lst<<endl;
 
             jt++;
         }
         
-        lst<<noshowbase;
+        lst<<setfill(' ')<<nouppercase;
 
+        lst.close();
     }
 
     // ELSE, some error in source program - leave the previous listing file as it is
+    
 }
 
 
@@ -787,6 +796,8 @@ void Assembler::generate_log_file() const
 
         lg<<endl;
     }
+
+    lg.close();
 
 }
 
