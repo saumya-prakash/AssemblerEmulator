@@ -15,5 +15,5 @@ Assembler.o:	Assembler.cpp Assembler.h
 
 
 clean:		
-		rm asm a.out *.o
+		rm asm a.out *.o *.l *.log
 

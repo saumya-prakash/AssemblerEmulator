@@ -185,7 +185,16 @@ void Assembler::assemble()
 
     second_pass();
 
-    // assembled = true;    PUT at end of second_pass()
+    generate_log_file();
+    
+    if(errors.empty())
+    {
+        assembled = true;
+        generate_listing_file();
+
+        // generate_object_file();
+    }
+
 
     return ;
 }
@@ -528,9 +537,11 @@ void Assembler::second_pass()
 unsigned Assembler::encode_zeroth(const string& s, const unsigned& opcode, const unsigned& line_no)
 {
     istringstream iss(s);
-    string more;
+    string t;
 
-    iss>>more;
+    iss>>t;     // 'dump' mnemonic
+
+    string more;
     iss>>more;
 
     if(!more.empty())   // more operands than required
@@ -670,26 +681,113 @@ void Assembler::generate_listing_file() const
 
         ofstream lst(lst_file+".l", ofstream::out);
 
-        lst<<unitbuf<<showbase;
-        
-        for(list<struct line>::const_iterator it=lines.begin(); it!=lines.end(); ++it)
-        {
-            lst<<it->addr<<'\t';    // memory address
+        list<struct line>::const_iterator it = lines.begin();
+        list<struct line>::const_iterator jt = aux_lines.begin();
 
-            lst<<hex;
-            lst<<it->encoding<<'\t';    // encoding of assembly-level statement
-            lst<<dec;
-            
-            lst<<it->s<<endl;       // assembly-level statement
+        lst<<showbase;
+
+        while(it!=lines.end() && jt!=aux_lines.end())
+        {
+            if(it->line_no == jt->line_no)
+            {
+                lst<<it->addr<<'\t';
+                
+                lst<<hex;
+                lst<<it->encoding<<'\t';
+                lst<<dec;
+
+                lst<<jt->s<<it->s;
+                lst<<endl;
+
+                it++;
+                jt++;
+            }
+
+            else if(it->line_no > jt->line_no)
+            {
+                lst<<jt->addr<<'\t'<<'\t'<<jt->s;
+                lst<<endl;
+
+                jt++;
+            }
+
+            else
+            {
+                lst<<it->addr<<'\t';
+                
+                lst<<hex;
+                lst<<it->encoding<<'\t';
+                lst<<dec;
+                
+                lst<<it->s;
+                lst<<endl;
+
+                it++;
+            }
         }
 
-        lst<<noshowbase<<nounitbuf;
+        while(it!=lines.end())
+        {
+            lst<<it->addr<<'\t';
+
+            lst<<hex;
+            lst<<it->encoding<<'\t';
+            lst<<dec;
+            
+            lst<<it->s;
+            lst<<endl;
+
+            it++;
+        }
+
+        while(jt!=aux_lines.end())
+        {
+            lst<<jt->addr<<'\t'<<'\t'<<jt->s;
+            lst<<endl;
+
+            jt++;
+        }
+        
+        lst<<noshowbase;
+
     }
 
-    else    // error in source program - leave the previous listing file as it is
+    // ELSE, some error in source program - leave the previous listing file as it is
+}
+
+
+void Assembler::generate_log_file() const
+{
+    string::size_type ind = filename.find_first_of('.');
+
+    string log_name = string(filename.begin(), filename.begin()+ind);
+
+    ofstream lg(log_name+".log", ofstream::out);
+
+    if(!errors.empty())
     {
-        ;        
+        lg<<"Errors -"<<endl;
+
+        for(map<unsigned, class Error>::const_iterator et=errors.begin(); et!=errors.end(); ++et)
+        {
+            lg<<"Line "<<et->first<<": "<<et->second.message<<endl;
+        }
+
+        lg<<endl;
     }
+
+    if(!warnings.empty())
+    {
+        lg<<"Warnings -"<<endl;
+
+        for(map<unsigned, class Warning>::const_iterator wt=warnings.begin(); wt!=warnings.end(); ++wt)
+        {
+            lg<<"Line "<<wt->first<<": "<<wt->second.message<<endl;
+        }
+
+        lg<<endl;
+    }
+
 }
 
 

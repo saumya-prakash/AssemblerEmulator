@@ -1,6 +1,15 @@
-ldc 12
+ldc 1
+a2sp
 
-loop:   br done
+call func
+
+HALT
 
 
-done:
+
+
+
+
+func:   ldc 0
+        ldc 0
+        return

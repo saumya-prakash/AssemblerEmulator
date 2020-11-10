@@ -1,30 +1,29 @@
-// #include <string>
-// #include <map>
-// #include <utility>
-// #include <list>
-// #include <fstream>
-// #include <ostream>
-// #include <sstream>
-// #include <cctype>
-// #include <ios>
+#include <iostream>
 
-#include <bits/stdc++.h>
+#include <string>
+#include <cctype>
 
-// using namespace std;
+#include <utility>
+#include <map>
+#include <set>
+#include <list>
+
+#include <fstream>
+#include <ostream>
+#include <sstream>
+
 
 using std::string;
 using std::map;
 using std::set;
 using std::multimap;
 using std::pair;
-using std::make_pair;
 using std::list;
 
 using std::ifstream;
 using std::ofstream;
 using std::ostream;
 using std::istringstream;
-using std::stringstream;
 
 using std::cin;
 using std::cout;
@@ -36,6 +35,8 @@ using std::unitbuf;
 using std::nounitbuf;
 using std::showbase;
 using std::noshowbase;
+using std::uppercase;
+using std::nouppercase;
 
 using std::hex;
 using std::oct;
@@ -45,10 +46,10 @@ using std::dec;
 
 class Assembler;
 class Error;
+class Warning;
 
 struct label;
 struct line;
-
 
 
 struct label
@@ -116,6 +117,11 @@ class Assembler
         static enum endianess machine_type;
         bool assembled;
 
+        void generate_log_file() const;
+        void generate_listing_file() const;
+        void generate_object_file() const;
+
+
     public:
 
         Assembler(ifstream &a, const string &b): src(a), filename(b), pc(0x00000000), data_addr(0x00010000), line_cnt(0), assembled(false)   {}
@@ -131,8 +137,6 @@ class Assembler
         void print_warnings(ostream&) const;
 
         void print_symtab(ostream&) const;
-
-        void generate_listing_file() const;
 
         static enum endianess get_endianess() ;
 
