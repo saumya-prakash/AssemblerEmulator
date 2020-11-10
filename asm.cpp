@@ -46,6 +46,8 @@ int main(int argc, char **argv)
     a1.print_warnings(cout);
     cout<<endl;
 
+    a1.generate_listing_file();
+
     
 
     exit(EXIT_SUCCESS);

@@ -1,12 +1,6 @@
-done:   ldc 12
-        ldc 0
+ldc 12
 
-SET 12
-
-dd:
-ee:
-
-a2sp
+loop:   br done
 
 
-
+done:

@@ -17,6 +17,7 @@ using std::map;
 using std::set;
 using std::multimap;
 using std::pair;
+using std::make_pair;
 using std::list;
 
 using std::ifstream;
@@ -31,6 +32,10 @@ using std::cout;
 using std::endl;
 using std::ends;
 using std::flush;
+using std::unitbuf;
+using std::nounitbuf;
+using std::showbase;
+using std::noshowbase;
 
 using std::hex;
 using std::oct;
@@ -98,6 +103,9 @@ class Assembler
 
         unsigned pc, data_addr, line_cnt;    // program counter
 
+        static const int offset_min = -0x00800000;
+        static const int offset_max = 0x007fffff;
+
         ifstream &src;      // reference to the openend file stream for reading
         string filename;    // to store the filename -> will be used to name output files
 
@@ -124,6 +132,8 @@ class Assembler
 
         void print_symtab(ostream&) const;
 
+        void generate_listing_file() const;
+
         static enum endianess get_endianess() ;
 
 
@@ -131,6 +141,12 @@ class Assembler
         void first_pass();
         void analyze(string&);
         void second_pass();   
+
+        unsigned encode_zeroth(const string&, const unsigned&, const unsigned&);
+        unsigned encode_first(const string&, const unsigned&, const unsigned&, const unsigned& pc);
+
+        inline int calculate_offset(const unsigned&, const unsigned&) const;
+
 
         void insert_into_symtab(struct label&);
 

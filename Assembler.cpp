@@ -1,6 +1,6 @@
 #include "Assembler.h"
 
-map<string, pair<unsigned, unsigned> > optab = {  
+map<string, pair<unsigned, unsigned> > Assembler::optab = {  
                                             {"ldc", {1, 0}},
                                             {"adc", {1, 1}},
                                             {"ldl", {1, 2}},
@@ -44,8 +44,6 @@ map<unsigned, string> Warning::warntab = {
 };
 
 
-
-
 enum Assembler::endianess Assembler::get_endianess()
 {
     unsigned int a = 1;
@@ -70,15 +68,57 @@ bool Assembler::valid_number(const string& s) const
     if(*it=='+' || *it=='-')
         ++it;
 
+    if(it==s.end())     // only sign with no digit(s) not allowed
+        return false;
+
+
     if(*it=='0')       // probably octal or hex
     {
         ++it;
 
-        if(it!=s.end() && (*it=='x' || *it=='X'))       // a hex
-            ++it;
+        if(it==s.end())
+            return true;    // represnts 0/ +0/ -0
+
+        if(*it=='x' || *it=='X')       // a hex
+        {
+            it++;
+
+            while(it!=s.end())
+            {
+                switch(*it)
+                {   case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+                    case 'a': case 'b': case 'c': case 'd': case 'e': case 'f':
+                    case 'A': case 'B': case 'C': case 'D': case 'E': case 'F':
+                                it++;
+                                break;
+                    
+
+                    default:    return false;    
+                }
+            }
+
+            return true;    // a valid hexadecimal number
+        }
+
+        else        // octal
+        {
+            while(it!=s.end())
+            {
+                switch(*it)
+                {
+                    case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7':
+                            it++;
+                            break;
+                    
+                    default:    return false;
+                }
+            }
+        }
+        
     }
 
-    while(it!=s.end())
+
+    while(it!=s.end())      // a decimal number
     {
         if(isdigit(*it)==0)
             return false;
@@ -101,6 +141,7 @@ int Assembler::str_to_int(string &num) const
     if(*it=='+' || *it=='-')
         ++it;
     
+
     if(*it=='0')    // oct or hex
     {
         ++it;
@@ -144,7 +185,7 @@ void Assembler::assemble()
 
     second_pass();
 
-    assembled = true;
+    // assembled = true;    PUT at end of second_pass()
 
     return ;
 }
@@ -441,10 +482,162 @@ void Assembler::analyze(string& s)
 
 void Assembler::second_pass()
 {
+    for(list<struct line>::iterator it=lines.begin(); it!=lines.end(); ++it)
+    {
+        string s = it->s;
+
+        istringstream iss(s);
+
+        string mnemonic;
+
+        iss>>mnemonic;
+
+        map<string, pair<unsigned, unsigned> >::iterator mt=optab.find(mnemonic);
+
+        if(mt==optab.end())     // unknown mnemonic error
+        {
+            errors.insert({it->line_no, Error(3)});
+            continue;           // process next line
+        } 
+
+        unsigned i_type = mt->second.first;
+        unsigned opcode = mt->second.second;
+
+        if(i_type==0)   // 0-operand mnemonic
+        {
+            unsigned res = encode_zeroth(s, opcode, it->line_no);
+
+            if(res!=0xffffffff)
+                it->encoding = res;
+        }
+
+        else        // 1-operand mnemonic
+        {
+            unsigned res = encode_first(s, opcode, it->line_no, it->addr);
+
+            if(res!=0xffffffff)
+                it->encoding = res;
+        }
+    }
+
 
     return ;
 }
 
+
+unsigned Assembler::encode_zeroth(const string& s, const unsigned& opcode, const unsigned& line_no)
+{
+    istringstream iss(s);
+    string more;
+
+    iss>>more;
+    iss>>more;
+
+    if(!more.empty())   // more operands than required
+    {
+        errors.insert({line_no, Error(6)});
+        return 0xffffffff;
+    }
+
+    return opcode;
+}
+
+
+unsigned Assembler::encode_first(const string& s, const unsigned& opcode, const unsigned& line_no, const unsigned& pc)
+{
+    istringstream iss(s);
+
+    string t;
+    iss>>t;     // 'dump' mnemonic
+
+    string less, more;
+
+    iss>>less;
+    if(less.empty())    // no operand - generate too few operands error
+    {
+        errors.insert({line_no, Error(9)});
+        return 0xffffffff;
+    }
+
+    t = less;
+
+    iss>>more;
+    if(!more.empty())   // more than 1 operand - generate too many operands error
+    {
+        errors.insert({line_no, Error(6)});
+        return 0xffffffff;
+    }
+
+    if(valid_number(t)==true)   // a numeric operand - applicable to all mnemonics of one-operand type
+    {
+        int a = str_to_int(t);
+
+        a = a<<8;
+        a = a + opcode;
+                                // HOPE CONVERSION DOESN'T POSE ANY PROBLEMS
+        unsigned tmp = a;
+
+        return tmp;
+    }
+
+    else        // either a label or an invalid operand
+    {
+        struct label tmp(t, 0);
+        if(tmp.name.empty())    // not a label -> so, an invalid operand
+        {
+            errors.insert({line_no, Error(4)});
+            return 0xffffffff;
+        }
+
+                        // a label name is there
+                        // first check if it is in the symbol table
+        map<string, struct label>::const_iterator st = symtab.find(t);
+
+        if(st==symtab.end())    // label not in symbol table - generate unknown label name error
+        {
+            errors.insert({line_no, Error(2)});
+            return 0xffffffff;
+        }
+
+
+        int offset;     // all one-operand mnemonics can have label as operand
+        unsigned b;
+
+        offset = calculate_offset(pc, st->second.addr);
+
+        b = offset;
+        b = b<<8;
+        b = b + opcode;
+
+        return b;
+
+        // switch(opcode)
+        // {
+        //     case 0:     // ldc
+        //     case 13:    // call
+        //     case 15:    // brz
+        //     case 16:    //brlz
+        //     case 17:    // br
+        //             offset = calculate_offset(pc, st->second.addr);
+
+        //             b = offset;
+        //             b = b<<8;
+        //             b = b + opcode;
+
+        //             return b;
+
+        //     default:        // others not allowed to put label as operand value
+        //                 errors.insert({line_no, Error(8)});
+        //                 return 0xffffffff;
+        // }
+    }
+}
+
+
+inline int Assembler::calculate_offset(const unsigned& pc, const unsigned& addr) const
+{
+    return addr - (pc + 1);
+}
 
 
             /* assembler helper functions  */
@@ -465,6 +658,40 @@ void Assembler::insert_into_symtab(struct label& l)
     
     return;
 }
+
+
+void Assembler::generate_listing_file() const
+{
+    if(errors.empty())
+    {
+        string::size_type ind = filename.find_first_of('.');
+
+        string lst_file = string(filename.begin(), filename.begin()+ind) ;
+
+        ofstream lst(lst_file+".l", ofstream::out);
+
+        lst<<unitbuf<<showbase;
+        
+        for(list<struct line>::const_iterator it=lines.begin(); it!=lines.end(); ++it)
+        {
+            lst<<it->addr<<'\t';    // memory address
+
+            lst<<hex;
+            lst<<it->encoding<<'\t';    // encoding of assembly-level statement
+            lst<<dec;
+            
+            lst<<it->s<<endl;       // assembly-level statement
+        }
+
+        lst<<noshowbase<<nounitbuf;
+    }
+
+    else    // error in source program - leave the previous listing file as it is
+    {
+        ;        
+    }
+}
+
 
 
 
