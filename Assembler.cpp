@@ -43,6 +43,7 @@ map<unsigned, string> Warning::warntab = {
                                             {2, "No preceding label"}   /* When SET doesn't have a corresponding label; not to be used with data directive! */
 };
 
+Assembler::endianess Assembler::machine_type = Assembler::get_endianess();
 
 enum Assembler::endianess Assembler::get_endianess()
 {
@@ -51,13 +52,13 @@ enum Assembler::endianess Assembler::get_endianess()
     char *ptr = (char *) &a;
 
     if(*ptr==1)
-        return little_endian;
+        return lil_endian;
     
     else
         return big_endian;
 }
 
-enum Assembler::endianess machine_type = Assembler::get_endianess();
+
 
 
 
@@ -169,7 +170,6 @@ int Assembler::str_to_int(string &num) const
 
 void Assembler::assemble()
 {   
-
     if(assembled==true)
         return;
 
@@ -185,16 +185,12 @@ void Assembler::assemble()
 
     second_pass();
 
-    generate_log_file();
     
     if(errors.empty())
     {
+        generate_object_file();
         assembled = true;
-        generate_listing_file();
-
-        // generate_object_file();
     }
-
 
     return ;
 }
@@ -651,7 +647,7 @@ inline int Assembler::calculate_offset(const unsigned& pc, const unsigned& addr)
 }
 
 
-            /* assembler helper functions  */
+
 
 
 
@@ -802,6 +798,91 @@ void Assembler::generate_log_file() const
 }
 
 
+void Assembler::generate_object_file() const    // text size, newline, program code, newline, newline, data size, data
+{
+    string::size_type ind = filename.find_first_of('.');
+
+    string object_file = string(filename.begin(), filename.begin()+ind);
+
+    ofstream fo(object_file+".o", ofstream::binary | ofstream::out);
+
+    const char nwln = '\n';
+
+    unsigned text_size = pc;
+    unsigned data_size = data_addr - 0x00010000 + 1;
+
+    print_bytes(fo, text_size);
+    fo.write(&nwln, 1);
+
+    list<struct line>::const_iterator it = lines.begin();
+
+    for(unsigned i=0; i<pc; ++i)
+    {
+        unsigned a = it->addr;
+        it++;
+
+        print_bytes(fo, a);
+    }
+
+    fo.write(&nwln, 1);
+    fo.write(&nwln, 1);
+
+
+    print_bytes(fo, data_size);
+    fo.write(&nwln, 1);
+    
+    map<unsigned, unsigned>::const_iterator dt = data_to_reserve.begin();
+
+    for(unsigned i=0; i<data_size; ++i)
+    {
+        unsigned a = dt->second;
+        dt++;
+
+        print_bytes(fo, a);
+    }
+    
+    fo.close();
+}
+
+
+
+void Assembler::print_bytes(ostream& os, unsigned a) const
+{
+    char *ptr = (char *) &a;
+
+    if(machine_type==lil_endian)     // reverse bytes
+    {
+        ptr += 3;
+
+        os.write(ptr, 1);
+
+        ptr--;
+        os.write(ptr, 1);
+
+        ptr--;
+        os.write(ptr, 1);
+
+        ptr--;
+        os.write(ptr, 1);    
+    }
+
+    else        // no need to reverse bytes
+    {
+        os.write(ptr, 1);
+
+        ptr++;
+        os.write(ptr, 1);
+
+        ptr++;
+        os.write(ptr, 1);
+
+        ptr++;
+        os.write(ptr, 1);
+    }
+}
+
+
+        /* PRINTER FUNCTIONS */
 
 
 void Assembler::print_lines(ostream &os) const

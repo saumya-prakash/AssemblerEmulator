@@ -94,10 +94,11 @@ struct line
 class Assembler
 {
     public:
-        enum endianess {little_endian, big_endian};
+        enum endianess {lil_endian, big_endian};
 
     private:
         static map<string, pair<unsigned, unsigned> > optab;    // opcode table
+        static endianess machine_type;
         
         map<string, struct label> symtab;       // symbol table
         map<unsigned, unsigned> data_to_reserve;
@@ -117,12 +118,8 @@ class Assembler
         multimap<unsigned, class Error> errors;    // stores errors line no. wise
         multimap<unsigned, class Warning> warnings; // stores warnings (some with line number, some independent)
 
-        static enum endianess machine_type;
         bool assembled;
-
-        void generate_log_file() const;
-        void generate_listing_file() const;
-        void generate_object_file() const;
+        
 
 
     public:
@@ -143,11 +140,19 @@ class Assembler
 
         static enum endianess get_endianess() ;
 
+        void generate_log_file() const;
+
+        void generate_listing_file() const;
+
 
     private:
         void first_pass();
         void analyze(string&);
         void second_pass();   
+
+        void generate_object_file() const;
+
+        void print_bytes(ostream&, unsigned) const;
 
         unsigned encode_zeroth(const string&, const unsigned&, const unsigned&);
         unsigned encode_first(const string&, const unsigned&, const unsigned&, const unsigned& pc);

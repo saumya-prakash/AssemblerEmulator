@@ -6,11 +6,13 @@ using namespace std;
 
 int main()
 {
+    ofstream fo("bibi.o", ofstream::binary | ofstream::out);
 
-    cout<<setfill('0');
-    cout<<setw(10)<<1;
+    const char nwln = '\n';
 
-    cout<<2<<endl;
+    fo.write(&nwln, 1);
+    fo.write(&nwln, 1);
+    fo.write(&nwln, 1);
 
 
     return 0;

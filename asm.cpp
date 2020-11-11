@@ -26,7 +26,9 @@ int main(int argc, char **argv)
     Assembler a1(src, argv[1]);
 
     a1.assemble();
-    
+    a1.generate_listing_file();
+    a1.generate_log_file();
+
     // cout<<"Lines for pass-2: "<<endl;
     // a1.print_lines(cout);
     // cout<<endl;

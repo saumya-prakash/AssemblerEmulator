@@ -1,15 +1,6 @@
-ldc 1
-a2sp
-
-call func
-
-HALT
+ldc 02
 
 
 
-
-
-
-func:   ldc 0
-        ldc 0
-        return
+arr:    data 10
+        data 20
