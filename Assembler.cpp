@@ -45,6 +45,10 @@ map<unsigned, string> Warning::warntab = {
 
 Assembler::endianess Assembler::machine_type = Assembler::get_endianess();
 
+const char Assembler::format_code[8] = "\\\'\'\"\t\f\b";
+
+
+
 enum Assembler::endianess Assembler::get_endianess()
 {
     unsigned int a = 1;
@@ -797,7 +801,7 @@ void Assembler::generate_log_file() const
 }
 
 
-void Assembler::generate_object_file() const    // text size, newline, program code, newline, newline, data size, data
+void Assembler::generate_object_file() const    // format_code, newline, text size, newline, program code, newline, newline, data size, data
 {
     string::size_type ind = filename.find_first_of('.');
 
@@ -807,6 +811,15 @@ void Assembler::generate_object_file() const    // text size, newline, program c
 
     const char nwln = '\n';
 
+    const char* ptr = format_code;  // writing format_code
+    for(unsigned i=0; i<8; ++i)
+    {
+        fo.write(format_code+i, 1);
+    }
+
+    fo.write(&nwln, 1);
+
+
     unsigned text_size = pc;
     unsigned data_size = data_to_reserve.size();    // more generic way to get data segment size
 
@@ -815,9 +828,9 @@ void Assembler::generate_object_file() const    // text size, newline, program c
 
     list<struct line>::const_iterator it = lines.begin();
 
-    for(unsigned i=0; i<pc; ++i)
+    for(unsigned i=0; i<pc; ++i)    // put text segment first
     {
-        unsigned a = it->addr;
+        unsigned a = it->encoding;
         ++it;
         
         print_bytes(fo, a);
@@ -832,7 +845,7 @@ void Assembler::generate_object_file() const    // text size, newline, program c
     
     map<unsigned, unsigned>::const_iterator dt = data_to_reserve.begin();
 
-    for(unsigned i=0; i<data_size; ++i)
+    for(unsigned i=0; i<data_size; ++i)     // put data segment second
     {
         unsigned a = dt->second;
         ++dt;

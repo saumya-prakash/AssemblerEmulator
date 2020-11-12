@@ -96,6 +96,16 @@ class Assembler
         enum endianess {lil_endian, big_endian};
 
     private:
+        static const int offset_min = -0x00800000;
+        static const int offset_max = 0x007fffff;
+
+        static const unsigned pc_lower = 0x0;
+        static const unsigned pc_upper = 0x3ff;
+        static const unsigned static_data_lower = 0x400;
+        static const unsigned address_end = 0xffff;
+
+        static const char format_code[8];
+
         static map<string, pair<unsigned, unsigned> > optab;    // opcode table
         static endianess machine_type;
         
@@ -107,8 +117,7 @@ class Assembler
 
         unsigned pc, data_addr, line_cnt;    // program counter
 
-        static const int offset_min = -0x00800000;
-        static const int offset_max = 0x007fffff;
+
 
         ifstream &src;      // reference to the openend file stream for reading
         string filename;    // to store the filename -> will be used to name output files
@@ -123,7 +132,7 @@ class Assembler
 
     public:
 
-        Assembler(ifstream &a, const string &b): src(a), filename(b), pc(0x00000000), data_addr(0x00010000), line_cnt(0), assembled(false)   {}
+        Assembler(ifstream &a, const string &b): src(a), filename(b), pc(pc_lower), data_addr(static_data_lower), line_cnt(0), assembled(false)   {}
 
         void assemble() ;
 
@@ -164,12 +173,10 @@ class Assembler
         bool valid_number(const string&) const;
         int str_to_int(string&) const;
 
-        void reset_pc() {pc=0x00000000;}
-        void reset_data_addr()  {data_addr=0x00010000;}
-        void reset_line_cnt()   {line_cnt=0;}
+        void reset_pc() {pc = pc_lower;}
+        void reset_data_addr()  {data_addr = static_data_lower;}
+        void reset_line_cnt()   {line_cnt = 0;}
 };  
-
-
 
 
 class Error
