@@ -13,6 +13,8 @@
 #include <ostream>
 #include <sstream>
 
+using std::cin;
+using std::cout;
 
 using std::string;
 using std::map;
@@ -25,9 +27,6 @@ using std::ifstream;
 using std::ofstream;
 using std::ostream;
 using std::istringstream;
-
-using std::cin;
-using std::cout;
 
 using std::endl;
 using std::ends;

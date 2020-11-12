@@ -421,7 +421,6 @@ void Assembler::analyze(string& s)
 
             if(flag==0)
             {
-                cout<<"Hello"<<endl;
                 struct line aux(s, line_cnt, pc);
                 aux_lines.push_back(aux);
             }
@@ -809,7 +808,7 @@ void Assembler::generate_object_file() const    // text size, newline, program c
     const char nwln = '\n';
 
     unsigned text_size = pc;
-    unsigned data_size = data_addr - 0x00010000 + 1;
+    unsigned data_size = data_to_reserve.size();    // more generic way to get data segment size
 
     print_bytes(fo, text_size);
     fo.write(&nwln, 1);
@@ -819,8 +818,8 @@ void Assembler::generate_object_file() const    // text size, newline, program c
     for(unsigned i=0; i<pc; ++i)
     {
         unsigned a = it->addr;
-        it++;
-
+        ++it;
+        
         print_bytes(fo, a);
     }
 
@@ -836,8 +835,8 @@ void Assembler::generate_object_file() const    // text size, newline, program c
     for(unsigned i=0; i<data_size; ++i)
     {
         unsigned a = dt->second;
-        dt++;
-
+        ++dt;
+        
         print_bytes(fo, a);
     }
     
@@ -907,7 +906,6 @@ void Assembler::print_errors(ostream &os) const
         class Error tmp = it->second;
 
         os<<"Line "<<line_no<<": "<<tmp.message<<endl;
-
     }
 }
 

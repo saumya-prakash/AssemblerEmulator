@@ -1,6 +1,1 @@
-ldc 02
-
-
-
-arr:    data 10
-        data 20
+SET 11  ;s d   

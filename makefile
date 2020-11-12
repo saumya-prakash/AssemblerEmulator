@@ -1,19 +1,34 @@
 CC = g++
-# FLAGS = 
+FLAGS = 
 
 
-all:	asm.o Assembler.o
-			$(CC) asm.o Assembler.o -o asm
+target:	asm emu
+
+
+asm:	asm.o Assembler.o	
+			$(CC) $(FLAGS) asm.o Assembler.o -o asm
+
+emu:	emu.o	Emulator.o
+			$(CC) $(FLAGS) emu.o Emulator.o -o emu
+
 
 
 asm.o:	asm.cpp Assembler.h
-			$(CC) -c asm.cpp
-
+			$(CC) $(FLAGS) -c asm.cpp
 
 Assembler.o:	Assembler.cpp Assembler.h
-					$(CC) -c Assembler.cpp
+					$(CC) $(FLAGS) -c Assembler.cpp
+
+
+
+emu.o:	emu.cpp Emulator.h
+			$(CC) $(FLAGS) -c emu.cpp
+
+Emulator.o:	Emulator.h Emulator.cpp
+				$(CC) $(FLAGS) -c Emulator.cpp
+
 
 
 clean:		
-		rm asm a.out *.o *.l *.log
+		rm asm emu a.out *.o *.l *.log
 
