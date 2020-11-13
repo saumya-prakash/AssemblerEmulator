@@ -186,84 +186,84 @@ string Emulator::execute()
                 A = operand;
                 break;
         
-        case 1:
+        case 1:         // adc value
                 A = A + operand;
                 break;
 
-        case 2:             // proper checks to be included
+        case 2:         // ldl value      // proper checks to be included
                 B = A;
                 A = mempory_space[SP+operand];
                 break;
 
-        case 3:
+        case 3:         // stl value
                 mempory_space[SP+operand] = A;
                 A = B;
                 break;
 
-        case 4:
+        case 4:         // ldnl offset
                 A = mempory_space[A+operand];
                 break;
         
-        case 5:
+        case 5:         // stnl offset
                 mempory_space[A+operand] = B;
                 break;
 
-        case 6:
+        case 6:         // add
                 A = B + A;
                 break;
 
-        case 7:
+        case 7:         // sub
                 A = B - A;
                 break;
 
-        case 8:
+        case 8:         // shl
                 A = B<<A;
                 break;
         
-        case 9:
+        case 9:         // shr
                 A = B>>A;
                 break;
         
-        case 10:
+        case 10:        // adj value
                 SP = SP + operand;
                 break;
         
-        case 11:
+        case 11:        //a2sp
                 SP = A;
                 A = B;
                 break;
         
-        case 12:
+        case 12:        // sp2a
                 B = A;
                 A = SP;
                 break;
         
-        case 13:
+        case 13:        // call offset
                 B = A;
                 A = PC;
                 PC = PC+operand;
                 break;
 
-        case 14:
+        case 14:        // return 
                 PC = A;
                 A = B;
                 break;
 
-        case 15:
+        case 15:        // brz offset
                 if(A==0)
                     PC = PC+operand;
                 break;
         
-        case 16:
+        case 16:        // brlz offset
                 if(A<0)
                     PC = PC+operand;
                 break;
 
-        case 17:
+        case 17:        // br offset
                 PC = PC+operand;
                 break;
         
-        case 18:
+        case 18:        // HALT
                 finished = true;
                 break;
         
@@ -273,6 +273,14 @@ string Emulator::execute()
     }
 
     instr_cnt++; 
+
+    if(instr_cnt==0) // looped back to 0 -> limit crossed
+    {
+        cout<<"Program took too long to finish"<<endl;
+        cout<<endl;                                    // indiacte program took too long to finish
+
+        exit(EXIT_FAILURE);
+    }
 
     return res;
 }
@@ -344,7 +352,7 @@ string Emulator::current_state() const
 {
     ostringstream oss;
 
-    oss<<"PC = "<<PC<<" , "<<"A = "<<A<<" , "<<"B = "<<B<<" , "<<"Memory_Content = "<<hex<<mempory_space[PC]<<dec<<" , "<<reverse_decode(mempory_space[PC]);
+    oss<<"PC = "<<PC<<" , "<<"SP = "<<SP<<" , "<<"A = "<<A<<" , "<<"B = "<<B<<" , "<<"Memory_Content = "<<hex<<mempory_space[PC]<<dec<<" , "<<reverse_decode(mempory_space[PC]);
 
     return oss.str();
 

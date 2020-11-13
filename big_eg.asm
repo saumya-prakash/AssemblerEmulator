@@ -76,4 +76,4 @@ one: ldc 1
  return
 ;
 count: data 10
-result: data 0
+result: data 1

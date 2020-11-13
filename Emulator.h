@@ -44,10 +44,10 @@ class Emulator
 
         string obj_filename;
         int A, B;
-        unsigned PC, SP;
+        int PC, SP;
         int *mempory_space;   // 1 MB memory space
 
-        unsigned instr_cnt;
+        unsigned long long int instr_cnt;
 
         unsigned text_size;
         unsigned data_size;
@@ -61,7 +61,7 @@ class Emulator
         bool loader();
         void memory_dump(ostream&) const;
         string current_state() const;
-        unsigned instructions_executed() const { return instr_cnt; }
+        unsigned long long int instructions_executed() const { return instr_cnt; }
         int get_program_status() const;
         
         string execute();   // executes one instruction
