@@ -1,6 +1,32 @@
 #include "Emulator.h"
 
 
+const char Emulator::format_code[8] = "\\\'\'\"\t\f\b";
+
+
+const map<unsigned, pair<unsigned, string> > Emulator::decoder = {  {0, {1, "ldc"}},
+                                                                    {1, {1, "adc"}},
+                                                                    {2, {1, "ldl"}},
+                                                                    {3, {1, "stl"}},
+                                                                    {4, {1, "ldnl"}},
+                                                                    {5, {1, "stnl"}},
+                                                                    {6, {0, "add"}},
+                                                                    {7, {0, "sub"}},
+                                                                    {8, {0, "shl"}},
+                                                                    {9, {0, "shr"}},
+                                                                    {10, {1, "adj"}},
+                                                                    {11, {0, "a2sp"}},
+                                                                    {12, {0, "sp2a"}},
+                                                                    {13, {1, "call"}},
+                                                                    {14, {0, "return"}},
+                                                                    {15, {1, "brz"}},
+                                                                    {16, {1, "brlz"}},
+                                                                    {17, {1, "br"}},
+                                                                    {18, {0, "HALT"}}
+};
+
+
+
 Emulator::endianess Emulator::get_endianess()
 {
     unsigned a = 1;
@@ -15,7 +41,6 @@ Emulator::endianess Emulator::get_endianess()
 
 const Emulator::endianess Emulator::machine_type = Emulator::get_endianess();
 
-const char Emulator::format_code[8] = "\\\'\'\"\t\f\b";
 
 
 
@@ -80,7 +105,7 @@ bool Emulator::loader()     // no size checking has been done now -> just simple
     PC = 0x00000000;     // SET TO 0x0
     A = 0x00000000;
     B = 0x00000000;
-    SP = 0xffff;    // set SP to last memory address
+    SP = 0xf000;    // set SP to ?? NOT CONFIRMED
 
     fi.close();
 
@@ -137,6 +162,145 @@ unsigned Emulator::get_int(ifstream& fi) const
 }
 
 
+string Emulator::execute()
+{
+    if(finished==true)
+        return string();
+    
+
+    string res = current_state();
+
+    int mach_code = mempory_space[PC];     // get current machine code
+
+    int opcode = (mach_code<<24)>>24;
+    int operand = (mach_code & static_cast<int>(0xffffff00)) / 256; // cast required for operations to work correctly work correctly
+
+    switch(opcode)
+    {
+        case 0:         // ldc value
+                B = A;
+                A = operand;
+                break;
+        
+        case 1:
+                A = A + operand;
+                break;
+
+        case 2:             // proper checks to be included
+                B = A;
+                A = mempory_space[SP+operand];
+                break;
+
+        case 3:
+                mempory_space[SP+operand] = A;
+                A = B;
+                break;
+
+        case 4:
+                A = mempory_space[A+operand];
+                break;
+        
+        case 5:
+                mempory_space[A+operand] = B;
+                break;
+
+        case 6:
+                A = B + A;
+                break;
+
+        case 7:
+                A = B - A;
+                break;
+
+        case 8:
+                A = B<<A;
+                break;
+        
+        case 9:
+                A = B>>A;
+                break;
+        
+        case 10:
+                SP = SP + operand;
+                break;
+        
+        case 11:
+                SP = A;
+                A = B;
+                break;
+        
+        case 12:
+                B = A;
+                A = SP;
+                break;
+        
+        case 13:
+                B = A;
+                A = PC;
+                PC = PC+operand;
+                break;
+
+        case 14:
+                PC = A;
+                A = B;
+                break;
+
+        case 15:
+                if(A==0)
+                    PC = PC+operand;
+                break;
+        
+        case 16:
+                if(A<0)
+                    PC = PC+operand;
+                break;
+
+        case 17:
+                PC = PC+operand;
+                break;
+        
+        case 18:
+                finished = true;
+                break;
+        
+        default:    
+                return ("Invalid opcode");
+                break;
+    }
+     
+     PC++;
+
+    return res;
+}
+
+
+
+string Emulator::reverse_decode(unsigned a) const
+{
+    unsigned opcode = (a<<24)>>24;
+
+    ostringstream oss;
+
+    map<unsigned, pair<unsigned, string> >::const_iterator mt = decoder.find(opcode);
+
+    string mnem = mt->second.second;    // storing the mnemonic
+
+    oss<<mnem;
+
+    if(mt->second.first==1)     // operand also present
+    {
+        int tmp = a & 0xffffff00;
+        tmp /= 256;
+
+        oss<<" "<<tmp;
+    }
+
+    return oss.str();
+}
+
+
+
+
 
 void Emulator::memory_dump(ostream& os) const
 {
@@ -163,5 +327,16 @@ void Emulator::memory_dump(ostream& os) const
         if(i%per_line==0)
             os<<'\n';
     }
+
+}
+
+
+string Emulator::current_state() const
+{
+    ostringstream oss;
+
+    oss<<"PC = "<<PC<<" , "<<"A = "<<A<<" , "<<"B = "<<B<<" , "<<"Memory_Content = "<<hex<<mempory_space[PC]<<dec<<" , "<<reverse_decode(mempory_space[PC]);
+
+    return oss.str();
 
 }

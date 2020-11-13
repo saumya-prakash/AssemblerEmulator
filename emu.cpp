@@ -38,11 +38,13 @@ int main(int argc, char** argv)
         return EXIT_FAILURE;
     }
 
-    cout<<hex;
-    e1.memory_dump(cout);
-    cout<<dec;
 
+    char c;
 
+    while(!e1.execute().empty())
+    {
+        cout<<e1.current_state()<<endl;
+    }
 
     cout<<nounitbuf;
     return EXIT_SUCCESS;
