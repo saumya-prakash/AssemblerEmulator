@@ -610,36 +610,31 @@ unsigned Assembler::encode_first(const string& s, const unsigned& opcode, const 
         }
 
 
-        int offset;     // all one-operand mnemonics can have label as operand
+        int offset;     // all one-operand mnemonics can have label as operand as well
         unsigned b;
 
-        offset = calculate_offset(pc, st->second.addr);
+        switch(opcode)
+        {
+            case 13:    // call
+            case 15:    // brz
+            case 16:    // brlz
+            case 17:    // br
+                    offset = calculate_offset(pc, st->second.addr);
 
-        b = offset;
-        b = b<<8;
-        b = b + opcode;
+                    b = offset;
+                    b = b<<8;
+                    b = b + opcode;
 
-        return b;
+                    return b;
+                    break;
 
-        // switch(opcode)
-        // {
-        //     case 0:     // ldc
-        //     case 13:    // call
-        //     case 15:    // brz
-        //     case 16:    //brlz
-        //     case 17:    // br
-        //             offset = calculate_offset(pc, st->second.addr);
-
-        //             b = offset;
-        //             b = b<<8;
-        //             b = b + opcode;
-
-        //             return b;
-
-        //     default:        // others not allowed to put label as operand value
-        //                 errors.insert({line_no, Error(8)});
-        //                 return 0xffffffff;
-        // }
+            default:        // others directly take the address as operand
+                        b = st->second.addr;
+                        b = b<<8;
+                        b = b + opcode;
+                        return b;
+                        break;
+        }
     }
 }
 

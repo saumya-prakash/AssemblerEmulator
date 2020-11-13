@@ -175,6 +175,10 @@ string Emulator::execute()
     int opcode = (mach_code<<24)>>24;
     int operand = (mach_code & static_cast<int>(0xffffff00)) / 256; // cast required for operations to work correctly work correctly
 
+
+    PC++;   // PC incremented to point to next instruction
+
+
     switch(opcode)
     {
         case 0:         // ldc value
@@ -267,12 +271,23 @@ string Emulator::execute()
                 return ("Invalid opcode");
                 break;
     }
-     
-     PC++;
+
+    instr_cnt++; 
 
     return res;
 }
 
+
+int Emulator::get_program_status() const
+{
+    if(finished==true)
+        return 0;       // finished execution
+    
+        // return -1;   fault-state - to be developed
+
+    return 1;    // active
+
+}
 
 
 string Emulator::reverse_decode(unsigned a) const
@@ -309,11 +324,8 @@ void Emulator::memory_dump(ostream& os) const
     unsigned i = pc_lower;
     while(i<text_size)
     {
-        os<<mempory_space[i]<<" ";
+        os<<i<<": "<<mempory_space[i]<<'\n';
         i++;
-
-        if(i%per_line==0)
-            os<<'\n';
     }
 
     os<<"\n\n";
@@ -321,11 +333,8 @@ void Emulator::memory_dump(ostream& os) const
     i = 0;
     while(i<data_size)
     {
-        os<<mempory_space[i+static_data_lower]<<" ";
+        os<<i+static_data_lower<<": "<<mempory_space[i+static_data_lower]<<'\n';
         i++;
-
-        if(i%per_line==0)
-            os<<'\n';
     }
 
 }

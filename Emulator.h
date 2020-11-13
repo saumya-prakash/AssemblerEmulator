@@ -45,7 +45,9 @@ class Emulator
         string obj_filename;
         int A, B;
         unsigned PC, SP;
-        unsigned *mempory_space;   // 1 MB memory space
+        int *mempory_space;   // 1 MB memory space
+
+        unsigned instr_cnt;
 
         unsigned text_size;
         unsigned data_size;
@@ -53,14 +55,14 @@ class Emulator
         bool finished;
 
     public:
-        Emulator(const string& s): obj_filename(s), A(0), B(0), PC(0), SP(0), mempory_space(new unsigned[total_memory]), finished(false) {}     // PC and SP will be put to corect values by the loader
+        Emulator(const string& s): obj_filename(s), A(0), B(0), PC(0), SP(0), mempory_space(new int[total_memory]), instr_cnt(0), finished(false) {}     // PC and SP will be put to corect values by the loader
         ~Emulator() { delete [] mempory_space; }
 
         bool loader();
         void memory_dump(ostream&) const;
         string current_state() const;
-        unsigned instructions_executed() const { return PC - pc_lower; }
-        
+        unsigned instructions_executed() const { return instr_cnt; }
+        int get_program_status() const;
         
         string execute();   // executes one instruction
 

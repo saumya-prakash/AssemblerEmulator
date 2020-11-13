@@ -38,13 +38,47 @@ int main(int argc, char** argv)
         return EXIT_FAILURE;
     }
 
-
     char c;
 
-    while(!e1.execute().empty())
+    do
     {
-        cout<<e1.current_state()<<endl;
-    }
+        cin>>c;
+
+        switch(c)
+        {
+            case 'a':   while(e1.get_program_status()!=0)
+                            e1.execute();
+                        
+                        cout<<"Total instructions executed = "<<e1.instructions_executed()<<endl;
+                        cout<<endl;
+                        break;
+
+
+            case 't':   if(e1.get_program_status()==0)
+                        {   cout<<"Program finished execution"<<endl;
+                            break;
+                        }
+                        cout<<e1.execute()<<endl;
+                        cout<<endl;
+                        break;
+
+            case 'd':   e1.memory_dump(cout);
+                        break; 
+
+
+            case 'x':   cout<<"Emulation terminated"<<endl;
+                        cout<<endl;
+                        break;
+
+            default:    cout<<"Invalid option"<<endl;
+                        cout<<endl;
+                        break;
+        
+        }
+
+
+    } while (c!='x');
+    
 
     cout<<nounitbuf;
     return EXIT_SUCCESS;

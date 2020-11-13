@@ -31,20 +31,20 @@ int main(int argc, char **argv)
     a1.generate_listing_file();
     a1.generate_log_file();
 
-    cout<<"Lines for pass-2: "<<endl;
-    a1.print_lines(cout);
-    cout<<endl;
+    // cout<<"Lines for pass-2: "<<endl;
+    // a1.print_lines(cout);
+    // cout<<endl;
 
-    cout<<"Aux lines: "<<endl;
-    a1.print_aux_lines(cout);
-    cout<<endl;
+    // cout<<"Aux lines: "<<endl;
+    // a1.print_aux_lines(cout);
+    // cout<<endl;
     
-    cout<<endl<<"Errors: "<<endl;
-    a1.print_errors(cout);
-    cout<<endl;
-
     cout<<endl<<"Symbol Table: "<<endl;
     a1.print_symtab(cout);
+    cout<<endl;
+
+    cout<<endl<<"Errors: "<<endl;
+    a1.print_errors(cout);
     cout<<endl;
 
     cout<<endl<<"Warnings: "<<endl;
