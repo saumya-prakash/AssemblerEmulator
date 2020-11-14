@@ -1,3 +1,12 @@
+// Name - Saumya Prakash
+// Roll No. - 1801CS68
+
+/******************************************************************************
+I hereby declare that the following program was solely designed and written by
+the author.
+********************************************************************************/
+
+
 #include <iostream>
 #include <iomanip>
 
