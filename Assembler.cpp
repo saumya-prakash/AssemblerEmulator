@@ -746,7 +746,7 @@ void Assembler::generate_listing_file() const
 
         while(jt!=aux_lines.end())
         {
-            lst<<setw(1)<<jt->addr<<'\t'<<"            "<<jt->s;
+            lst<<setw(10)<<jt->addr<<'\t'<<"            "<<jt->s;
             lst<<endl;
 
             jt++;

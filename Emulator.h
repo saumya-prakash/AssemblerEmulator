@@ -19,6 +19,8 @@ using std::hex;
 using std::dec;
 using std::setw;
 using std::setfill;
+using std::left;
+using std::right;
 
 using std::ostream;
 using std::ostringstream;

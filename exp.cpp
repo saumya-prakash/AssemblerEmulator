@@ -49,13 +49,16 @@ string reverse_decode(unsigned a)
 
 int main()
 {
-    unsigned a = 111;
+    unsigned long long int a = 0;
 
-    int b = -1;
+    a++;
 
-    a = a+b;
+    while(a!=0)
+    {
+        ++a;
+        // cout<<a<<endl;
+    }
 
-    cout<<a<<endl;
 
     
 

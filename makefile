@@ -1,5 +1,5 @@
 CC = g++
-FLAGS = -g
+FLAGS = -O3
 
 
 target:	asm emu

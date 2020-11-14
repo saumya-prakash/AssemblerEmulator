@@ -193,6 +193,17 @@ string Emulator::execute()
 
     PC++;   // PC incremented to point to next instruction
 
+    check_PC(PC);
+    if(PC>pc_upper)
+    {   
+        fault = true;
+
+        string tmp = faults.find(0)->second;
+        fault_cause = tmp + " as upper limit for text segment crossed; no HALT encountered";
+        
+        return fault_cause;
+    }
+
     switch(opcode)
     {
         case 0:         // ldc value
@@ -341,10 +352,11 @@ string Emulator::execute()
 
     if(instr_cnt==0) // looped back to 0 -> limit crossed
     {
-        cout<<"Program took too long to finish"<<endl;
-        cout<<endl;                                    // indiacte program took too long to finish
+        fault = true;                                    // indiacte program took too long to finish
 
-        exit(EXIT_FAILURE);
+        fault_cause = faults.find(6)->second;
+
+        return fault_cause;
     }
 
     return res;
@@ -465,7 +477,7 @@ void Emulator::disassemble(ostream& os) const
         os<<setw(10)<<setfill('0')<<i<<setfill(' ')<<"   ";
 
         os<<"Memory Content = ";
-        os<<"0x"<<setw(8)<<hex<<setfill('0')<<PC<<setfill(' ')<<dec<<"   ";
+        os<<"0x"<<setw(8)<<hex<<setfill('0')<<mempory_space[i]<<setfill(' ')<<dec<<"   ";
 
         cout<<" "<<tmp<<endl;
     }
@@ -477,21 +489,30 @@ void Emulator::memory_dump(ostream& os) const
 {
     int per_line = 4;
 
+    os<<hex;
+
+    os<<"Text Segment :-\n\tsize = "<<text_size<<'\n';
+
     unsigned i = pc_lower;
     while(i<text_size)
     {
-        os<<i<<": "<<mempory_space[i]<<'\n';
+        os<<i<<": "<<"0x"<<mempory_space[i]<<'\n';
         i++;
     }
 
     os<<"\n\n";
 
+    os<<"Data Segment :-\n\tsize = "<<data_size<<'\n';
     i = 0;
     while(i<data_size)
     {
-        os<<i+data_lower<<": "<<mempory_space[i+data_lower]<<'\n';
+        os<<i+data_lower<<": "<<"0x"<<mempory_space[i+data_lower]<<'\n';
         i++;
     }
+
+    os<<'\n';
+
+    os<<dec;
 
 }
 
@@ -500,22 +521,21 @@ string Emulator::current_state() const
 {
     ostringstream oss;
 
-    oss<<"PC = ";
-    oss<<setw(10)<<setfill('0')<<PC<<setfill(' ')<<"   ";
+    oss<<left;
 
-    oss<<"SP = ";
-    oss<<setw(10)<<setfill('0')<<SP<<setfill(' ')<<"   ";
+    oss<<"PC = "<<setw(11)<<PC<<"   ";
 
-    oss<<"A = ";
-    oss<<setw(10)<<setfill('0')<<A<<setfill(' ')<<"   ";
+    oss<<"SP = "<<setw(11)<<SP<<"   ";
 
-    oss<<"B = ";
-    oss<<setw(10)<<setfill('0')<<B<<setfill(' ')<<"   ";
+    oss<<"A = "<<setw(11)<<A<<"   ";
+
+    oss<<"B = "<<setw(11)<<B<<"   ";
     
-    oss<<"Memory Content = ";
-    oss<<"0x"<<setw(8)<<hex<<setfill('0')<<mempory_space[PC]<<setfill(' ')<<dec<<"   ";
+    oss<<"Memory Content = "<<"0x"<<setw(8)<<hex<<setfill('0')<<mempory_space[PC]<<setfill(' ')<<dec<<"   ";
 
     oss<<" "<<reverse_decode(mempory_space[PC]);
+
+    oss<<right;
 
     return oss.str();
 
