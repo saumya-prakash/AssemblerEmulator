@@ -54,7 +54,7 @@ struct label;
 struct line;
 
 
-struct label
+struct label    // stores complete info about a label -> name, line_number, address, use_count
 {
     string name;
     unsigned int addr, use_cnt, line_no;  
@@ -64,7 +64,7 @@ struct label
     label(): name(string()), addr(-1), use_cnt(0), line_no(0) {}
 
     private:
-        string validate(const string &s)
+        string validate(const string &s)    // checks for valid label name
         {
             if(isalpha(s[0])==0)    // first character should be an alphabet
                 return string();
@@ -79,7 +79,7 @@ struct label
 
 
 
-struct line
+struct line     // for storing lines of the source program
 {
     string s;
     unsigned line_no, addr, encoding;
@@ -90,7 +90,7 @@ struct line
 
 
 
-class Assembler
+class Assembler     // class for ASSEMBLER
 {
     public:
         enum endianess {lil_endian, big_endian};
@@ -101,21 +101,21 @@ class Assembler
 
         static const unsigned pc_lower = 0x0;
         static const unsigned pc_upper = 0x3ff;
-        static const unsigned static_data_lower = 0x400;
+        static const unsigned data_lower = 0x400;
         static const unsigned address_end = 0xffff;
 
-        static const char format_code[8];
+        static const char format_code[8];   // represents magic number for object file
 
         static map<string, pair<unsigned, unsigned> > optab;    // opcode table
-        static endianess machine_type;
+        static endianess machine_type;      // stores endianess of local machine
         
         map<string, struct label> symtab;       // symbol table
-        map<unsigned, unsigned> data_to_reserve;
+        map<unsigned, unsigned> data_to_reserve;    // data table
 
         list<struct line> lines;       // stores lines required in pass-2
         list<struct line> aux_lines;    // stores lines that are not required in pass-2
 
-        unsigned pc, data_addr, line_cnt;    // program counter
+        unsigned pc, data_addr, line_cnt;    // program counter, data_addr, and line counter
 
 
 
@@ -126,17 +126,20 @@ class Assembler
         multimap<unsigned, class Error> errors;    // stores errors line no. wise
         multimap<unsigned, class Warning> warnings; // stores warnings (some with line number, some independent)
 
-        bool assembled;
-        
+        bool assembled;     // stores result of assembly process
+        bool warn;
 
 
     public:
 
-        Assembler(ifstream &a, const string &b): src(a), filename(b), pc(pc_lower), data_addr(static_data_lower), line_cnt(0), assembled(false)   {}
+        Assembler(ifstream &a, const string &b): src(a), filename(b), pc(pc_lower), data_addr(data_lower), line_cnt(0), assembled(false), warn(false)   {}
 
-        void assemble() ;
+        void assemble() ;   // assembles the inputted file
 
-        void print_lines(ostream&) const;
+        bool get_assembly_status() const { return assembled; }
+        bool get_warning_status() const { return warn; }
+
+        void print_lines(ostream&) const;   
 
         void print_aux_lines(ostream&) const;
         
@@ -146,40 +149,40 @@ class Assembler
 
         void print_symtab(ostream&) const;
 
-        static enum endianess get_endianess() ;
+        static enum endianess get_endianess(); // finds endianess of local machine
 
-        void generate_log_file() const;
+        void generate_log_file() const;     // generates log file
 
-        void generate_listing_file() const;
+        void generate_listing_file() const; // generates lisitng file
 
 
     private:
-        void first_pass();
-        void analyze(string&);
-        void second_pass();   
+        void first_pass();      // first pass
+        void analyze(string&);  // analyzes lines in first pass - labels, SET directive, data directive
+        void second_pass();     // second pass
 
         void generate_object_file() const;
 
-        void print_bytes(ostream&, unsigned) const;
+        void print_bytes(ostream&, unsigned) const;   // prints bytes in object file
 
-        unsigned encode_zeroth(const string&, const unsigned&, const unsigned&);
-        unsigned encode_first(const string&, const unsigned&, const unsigned&, const unsigned& pc);
+        unsigned encode_zeroth(const string&, const unsigned&, const unsigned&);    // encodes instructions with 0 operands
+        unsigned encode_first(const string&, const unsigned&, const unsigned&, const unsigned& pc); // encodes instructions with 1 operand
 
-        inline int calculate_offset(const unsigned&, const unsigned&) const;
+        inline int calculate_offset(const unsigned&, const unsigned&) const;    // calculates offset based on PC and label values
 
 
-        void insert_into_symtab(struct label&);
+        void insert_into_symtab(struct label&);  // inserts into symbol table
 
-        bool valid_number(const string&) const;
+        bool valid_number(const string&) const; // checks if number is valid - decimal, octal or hexadecimal
         int str_to_int(string&) const;
 
-        void reset_pc() {pc = pc_lower;}
-        void reset_data_addr()  {data_addr = static_data_lower;}
+        void reset_pc() {pc = pc_lower;}    
+        void reset_data_addr()  {data_addr = data_lower;}
         void reset_line_cnt()   {line_cnt = 0;}
 };  
 
 
-class Error
+class Error     // class that represents ERRORS in source program
 {
     friend class Assembler;
 
@@ -194,7 +197,7 @@ class Error
 
 
 
-class Warning
+class Warning   // class for WARNINGS
 {
     friend class Assembler;
     private:

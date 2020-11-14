@@ -12,11 +12,27 @@ using std::hex;
 using std::dec;
 
 
+void print_options()
+{
+    cout<<"Options :-"<<endl;
+
+    cout<<"\tt - Execute one instruction with trace"<<endl;
+    cout<<"\ts - Execute all instrutions with trace"<<endl;
+    cout<<"\tn number - Execute specified number of instructions"<<endl;
+    cout<<"\ta - Execute all instrucions without trace"<<endl;
+    cout<<"\tc - Display number of instructions executed so far"<<endl;
+    cout<<"\tu - Disassemble"<<endl;
+    cout<<"\td - Show memory dump"<<endl;
+    cout<<"\tx - Quit the emulator"<<endl;
+
+    return;
+}
+
+
 int main(int argc, char** argv)
 {
     cout<<unitbuf;
     cin.tie(&cout);
-
 
     if(argc==1)
     {
@@ -38,15 +54,31 @@ int main(int argc, char** argv)
         return EXIT_FAILURE;
     }
 
-    char c;
+    print_options();
+    cout<<endl;
 
+    char c;     // interact with the user
     do
     {
         cin>>c;
 
         switch(c)
         {
-            case 'a':   while(e1.get_program_status()!=0)
+            case 'a':       // execute all instructions in one go
+                        if(e1.get_program_status()==-1)     // program in fault state
+                        {
+                            cout<<e1.get_fault_cause()<<endl<<endl;
+                            break;
+                        }
+
+                        if(e1.get_program_status()==0)
+                        {
+                            cout<<"Program finished execution"<<endl<<endl;
+                            break;
+                        }
+                        
+
+                        while(e1.get_program_status()==1)
                             e1.execute();
                         
                         cout<<"Total instructions executed = "<<e1.instructions_executed()<<endl;
@@ -54,26 +86,92 @@ int main(int argc, char** argv)
                         break;
 
 
-            case 't':   if(e1.get_program_status()==0)
-                        {   cout<<"Program finished execution"<<endl;
+            case 't':       // execute a single instruction with trace
+                        if(e1.get_program_status()==-1)
+                        {
+                            cout<<e1.get_fault_cause()<<endl;
+                            cout<<endl;
                             break;
                         }
+
+                        if(e1.get_program_status()==0)
+                        {   cout<<"Program finished execution"<<endl;
+                            cout<<endl;
+                            break;
+                        }
+
                         cout<<e1.execute()<<endl;
                         cout<<endl;
                         break;
 
-            case 'd':   e1.memory_dump(cout);
+            case 's':   // execute all instrutions with trace
+                        if(e1.get_program_status()==-1)     // program in fault state
+                        {
+                            cout<<e1.get_fault_cause()<<endl<<endl;
+                            break;
+                        }
+
+                        if(e1.get_program_status()==0)
+                        {
+                            cout<<"Program finished execution"<<endl<<endl;
+                            break;
+                        }
+                        
+
+                        while(e1.get_program_status()==1)
+                            cout<<e1.execute()<<endl;
+                        cout<<endl;
+                
+                        cout<<"Total instructions executed = "<<e1.instructions_executed()<<endl;
+                        cout<<endl;
+                        break;
+
+
+            case 'n':       // print specified number of instructions
+                        {
+                            int a = 0;
+                            cin>>a;
+                            int i = 0;
+                            while(i<a && e1.get_program_status()==1)
+                            {
+                                i++;
+                                cout<<e1.execute()<<endl;
+                            }
+                            cout<<endl;
+                        }
+                        
+                        break;
+
+
+            case 'u':       // disassemble
+                        e1.disassemble(cout);
+                        cout<<endl;
+                        break;
+
+
+
+            case 'd':       // outputs memory dump
+                        e1.memory_dump(cout);
                         break; 
 
 
-            case 'x':   cout<<"Emulation terminated"<<endl;
+            case 'c':   // number of instructions executed thus far
+                        cout<<"Number of instructions executed = "<<e1.instructions_executed()<<endl;
                         cout<<endl;
                         break;
 
-            default:    cout<<"Invalid option"<<endl;
+            case 'x':       // QUIT
+                        cout<<"Emulation terminated"<<endl;
                         cout<<endl;
                         break;
-        
+
+                        
+            default:    cout<<"Invalid option"<<endl;
+                        print_options();
+                        cout<<endl;
+
+                        continue;
+                        break;
         }
 
 

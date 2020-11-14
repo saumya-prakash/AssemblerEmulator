@@ -31,25 +31,27 @@ int main(int argc, char **argv)
     a1.generate_listing_file();
     a1.generate_log_file();
 
-    // cout<<"Lines for pass-2: "<<endl;
-    // a1.print_lines(cout);
-    // cout<<endl;
+    if(a1.get_assembly_status()==false)
+    {   
+        cout<<endl<<"Errors: "<<endl;
+        a1.print_errors(cout);
+        cout<<endl;
+    }
 
-    // cout<<"Aux lines: "<<endl;
-    // a1.print_aux_lines(cout);
-    // cout<<endl;
-    
-    cout<<endl<<"Symbol Table: "<<endl;
-    a1.print_symtab(cout);
-    cout<<endl;
+    if(a1.get_assembly_status()==true)
+    {
+        cout<<"Assembled successfully"<<endl;
+        cout<<endl;
+    }
 
-    cout<<endl<<"Errors: "<<endl;
-    a1.print_errors(cout);
-    cout<<endl;
 
-    cout<<endl<<"Warnings: "<<endl;
-    a1.print_warnings(cout);
-    cout<<endl;
+    if(a1.get_warning_status()==true)
+    {
+        cout<<endl<<"Warnings: "<<endl;
+        a1.print_warnings(cout);
+        cout<<endl;
+    }
+
 
     src.close();
     

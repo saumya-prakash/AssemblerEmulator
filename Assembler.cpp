@@ -196,6 +196,9 @@ void Assembler::assemble()
         assembled = true;
     }
 
+    if(!warnings.empty())
+        warn = true;
+
     return ;
 }
 
