@@ -297,6 +297,7 @@ void Assembler::analyze(string& s)
                 insert_into_symtab(l);  // will take care of insertion, error-detection
 
                 struct line aux(s, line_cnt, pc);
+                aux.encoding = a;       // encoded form of opearnd of SET
                 aux_lines.push_back(aux);
             }
 
@@ -347,6 +348,7 @@ void Assembler::analyze(string& s)
                 insert_into_symtab(l);
                 
                 struct line aux(s, line_cnt, data_addr);
+                aux.encoding = value;
                 aux_lines.push_back(aux);
 
                 data_addr++;     // incrementing by 1 as it is a word-addressable machine
@@ -428,7 +430,10 @@ void Assembler::analyze(string& s)
 
             if(flag==0)
             {
+                int a = str_to_int(t1);
+
                 struct line aux(s, line_cnt, pc);
+                aux.encoding = a;
                 aux_lines.push_back(aux);
             }
 
@@ -467,6 +472,7 @@ void Assembler::analyze(string& s)
                 data_to_reserve[data_addr] = a;
 
                 struct line aux(s, line_cnt, data_addr);
+                aux.encoding = a;
                 aux_lines.push_back(aux);
 
                 data_addr++;
@@ -668,6 +674,30 @@ void Assembler::insert_into_symtab(struct label& l)
 }
 
 
+
+bool only_label(const string& s)
+{
+    string::const_iterator it = s.begin();
+
+    while(it!=s.end() && *it!=':')
+        ++it;
+    
+    if(it==s.end())
+        return false;
+    
+    it++;           // ':' found -> move one ahead
+    while(it!=s.end())  
+    {
+        if(*it>32)
+            return false;
+        
+        it++;
+    }
+
+    return true;
+}
+
+
 void Assembler::generate_listing_file() const
 {
     if(errors.empty())
@@ -707,7 +737,21 @@ void Assembler::generate_listing_file() const
 
             else if(it->line_no > jt->line_no)
             {
-                lst<<setw(10)<<jt->addr<<'\t'<<"            "<<jt->s;
+                lst<<setw(10)<<jt->addr<<'\t';
+                
+                if(only_label(jt->s)==false)
+                {
+                    lst<<"0x"<<setw(8);
+                    lst<<hex;
+                    lst<<jt->encoding<<'\t';
+                    lst<<dec;
+                }
+                else
+                {
+                    lst<<"        \t";
+                }
+                
+                lst<<jt->s;
                 lst<<endl;
 
                 jt++;
@@ -746,7 +790,21 @@ void Assembler::generate_listing_file() const
 
         while(jt!=aux_lines.end())
         {
-            lst<<setw(10)<<jt->addr<<'\t'<<"            "<<jt->s;
+            lst<<setw(10)<<jt->addr<<'\t';
+            
+            if(only_label(jt->s)==false)
+            {   lst<<"0x"<<setw(8);
+                lst<<hex;
+                lst<<jt->encoding<<'\t';
+                lst<<dec;
+            }
+            else
+            {
+                lst<<"        \t";
+            }
+            
+
+            lst<<jt->s;
             lst<<endl;
 
             jt++;
