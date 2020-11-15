@@ -39,7 +39,7 @@ map<unsigned, string> Error::errtab = {
 
 map<unsigned, string> Warning::warntab = {  
                                             {0, "Deafult warning"},
-                                            {1, "Unused variable"},
+                                            {1, "Unused label"},
                                             {2, "No preceding label"}   /* When SET doesn't have a corresponding label; not to be used with data directive! */
 };
 
@@ -189,6 +189,7 @@ void Assembler::assemble()
 
     second_pass();
 
+    generate_warnings();
     
     if(errors.empty())
     {
@@ -542,6 +543,15 @@ void Assembler::second_pass()
 }
 
 
+void Assembler::generate_warnings()
+{
+    for(map<string, struct label>::const_iterator it=symtab.begin(); it!=symtab.end(); ++it)
+    {
+        if(it->second.use_cnt==0)
+            warnings.insert({it->second.line_no, Warning(1)});
+    }
+}
+
 unsigned Assembler::encode_zeroth(const string& s, const unsigned& opcode, const unsigned& line_no)
 {
     istringstream iss(s);
@@ -610,7 +620,7 @@ unsigned Assembler::encode_first(const string& s, const unsigned& opcode, const 
 
                         // a label name is there
                         // first check if it is in the symbol table
-        map<string, struct label>::const_iterator st = symtab.find(t);
+        map<string, struct label>::iterator st = symtab.find(t);
 
         if(st==symtab.end())    // label not in symbol table - generate unknown label name error
         {
@@ -618,6 +628,7 @@ unsigned Assembler::encode_first(const string& s, const unsigned& opcode, const 
             return 0xffffffff;
         }
 
+        ++(st->second.use_cnt);
 
         int offset;     // all one-operand mnemonics can have label as operand as well
         unsigned b;

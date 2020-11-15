@@ -183,6 +183,12 @@ string Emulator::execute()
     if(finished==true)
         return string();
 
+    if(text_size==0)
+    {
+        finished = true;
+        return "No text segment to execute";
+    }
+
     string res = current_state();
 
     int mach_code = mempory_space[PC];     // get current machine code
@@ -489,14 +495,14 @@ void Emulator::memory_dump(ostream& os) const
 {
     int per_line = 4;
 
-    os<<hex;
+    os<<hex<<showbase;
 
     os<<"Text Segment :-\n\tsize = "<<text_size<<'\n';
 
     unsigned i = pc_lower;
     while(i<text_size)
     {
-        os<<i<<": "<<"0x"<<mempory_space[i]<<'\n';
+        os<<i<<": "<<mempory_space[i]<<'\n';
         i++;
     }
 
@@ -506,11 +512,11 @@ void Emulator::memory_dump(ostream& os) const
     i = 0;
     while(i<data_size)
     {
-        os<<i+data_lower<<": "<<"0x"<<mempory_space[i+data_lower]<<'\n';
+        os<<i+data_lower<<": "<<mempory_space[i+data_lower]<<'\n';
         i++;
     }
 
-    os<<'\n';
+    os<<'\n'<<noshowbase;
 
     os<<dec;
 

@@ -17,6 +17,8 @@ using std::flush;
 using std::ends;
 using std::hex;
 using std::dec;
+using std::showbase;
+using std::noshowbase;
 using std::setw;
 using std::setfill;
 using std::left;

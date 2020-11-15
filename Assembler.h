@@ -127,7 +127,6 @@ class Assembler     // class for ASSEMBLER
         unsigned pc, data_addr, line_cnt;    // program counter, data_addr, and line counter
 
 
-
         ifstream &src;      // reference to the openend file stream for reading
         string filename;    // to store the filename -> will be used to name output files
 
@@ -169,6 +168,8 @@ class Assembler     // class for ASSEMBLER
         void first_pass();      // first pass
         void analyze(string&);  // analyzes lines in first pass - labels, SET directive, data directive
         void second_pass();     // second pass
+
+        void generate_warnings();
 
         void generate_object_file() const;
 
