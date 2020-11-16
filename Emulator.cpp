@@ -365,7 +365,6 @@ string Emulator::execute()
         oss<<faults.find(6)->second;
         oss<<'\n';
         
-        instr_cnt = ~instr_cnt;
         oss<<instr_cnt<<" instructions executed so far\n";
 
         fault_cause = oss.str();
