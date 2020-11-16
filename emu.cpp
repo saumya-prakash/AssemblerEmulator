@@ -20,6 +20,7 @@ void print_options()
     cout<<"\ts - Execute all instrutions with trace"<<endl;
     cout<<"\tn number - Execute specified number of instructions"<<endl;
     cout<<"\ta - Execute all instrucions without trace"<<endl;
+    cout<<"\tq - Show current architectural state"<<endl;
     cout<<"\tc - Display number of instructions executed so far"<<endl;
     cout<<"\tu - Disassemble"<<endl;
     cout<<"\td - Show memory dump"<<endl;
@@ -77,10 +78,15 @@ int main(int argc, char** argv)
                             break;
                         }
                         
-
                         while(e1.get_program_status()==1)
                             e1.execute();
                         
+                        if(e1.get_program_status()==-1)     // program in fault state after completing execution
+                        {
+                            cout<<e1.get_fault_cause()<<endl<<endl;
+                            break;
+                        }
+
                         cout<<"Total instructions executed = "<<e1.instructions_executed()<<endl;
                         cout<<endl;
                         break;
@@ -142,6 +148,11 @@ int main(int argc, char** argv)
                         
                         break;
 
+            case 'q':       // show current architectural state
+                        cout<<e1.current_state()<<endl;
+                        cout<<endl;
+                        break;
+                        
 
             case 'u':       // disassemble
                         e1.disassemble(cout);

@@ -30,5 +30,5 @@ Emulator.o:	Emulator.h Emulator.cpp
 
 
 clean:		
-		rm -f asm emu a.out *.o *.l *.log
+		rm -f asm emu a.out *.o *.lst *.log
 

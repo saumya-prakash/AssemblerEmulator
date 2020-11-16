@@ -197,7 +197,7 @@ string Emulator::execute()
     int operand = (mach_code & static_cast<int>(0xffffff00)) / 256; // cast required for operations to work correctly work correctly
 
 
-    PC++;   // PC incremented to point to next instruction
+    ++PC;   // PC incremented to point to next instruction
 
     check_PC(PC);
     if(PC>pc_upper)
@@ -222,12 +222,12 @@ string Emulator::execute()
                 break;
 
         case 2:         // ldl value      // proper checks to be included
-                B = A;
 
                 check_memory_access(SP+operand);
                 if(fault==true)
                     return fault_cause;
 
+                B = A;
                 A = mempory_space[SP+operand];
                 break;
 
@@ -295,13 +295,13 @@ string Emulator::execute()
                 break;
         
         case 13:        // call offset
-                B = A;
-                A = PC;
 
                 check_PC(PC+operand);
                 if(fault==true)
                     return fault_cause;
                 
+                B = A;
+                A = PC;
                 PC = PC+operand;
                 break;
 
@@ -354,13 +354,21 @@ string Emulator::execute()
                 break;
     }
 
-    instr_cnt++; 
+    ++instr_cnt; 
 
-    if(instr_cnt==0) // looped back to 0 -> limit crossed
+    if(instr_cnt==max_instruction_count) // looped back to 0 -> limit crossed
     {
-        fault = true;                                    // indiacte program took too long to finish
+        fault = true;          
+                                  // indiacte program took too long to finish
+        ostringstream oss;
 
-        fault_cause = faults.find(6)->second;
+        oss<<faults.find(6)->second;
+        oss<<'\n';
+        
+        instr_cnt = ~instr_cnt;
+        oss<<instr_cnt<<" instructions executed so far\n";
+
+        fault_cause = oss.str();
 
         return fault_cause;
     }
@@ -512,14 +520,15 @@ void Emulator::memory_dump(ostream& os) const
     i = 0;
     while(i<data_size)
     {
-        os<<i+data_lower<<": "<<mempory_space[i+data_lower]<<'\n';
+        os<<i+data_lower<<": "<<mempory_space[i+data_lower];
+        os<<"  (In decimal: "<<dec<<mempory_space[i+data_lower]<<hex<<")\n";
         i++;
     }
+
 
     os<<'\n'<<noshowbase;
 
     os<<dec;
-
 }
 
 

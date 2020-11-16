@@ -52,13 +52,10 @@ int main()
     unsigned long long int a = 0;
 
     a++;
-
     while(a!=0)
-    {
         ++a;
-        // cout<<a<<endl;
-    }
-
+    
+    cout<<a-1<<endl;
 
     
 

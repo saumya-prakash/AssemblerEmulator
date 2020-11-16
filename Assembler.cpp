@@ -717,7 +717,7 @@ void Assembler::generate_listing_file() const
 
         string lst_file = string(filename.begin(), filename.begin()+ind) ;
 
-        ofstream lst(lst_file+".l", ofstream::out);
+        ofstream lst(lst_file+".lst", ofstream::out);
 
         list<struct line>::const_iterator it = lines.begin();
         list<struct line>::const_iterator jt = aux_lines.begin();
