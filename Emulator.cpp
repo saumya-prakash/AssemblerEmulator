@@ -31,7 +31,8 @@ const map<unsigned, string> Emulator::faults = {{0, "PC goes out of text segment
                                                 {3, "Program tried to access out of range memory address"},
                                                 {4, "Too large text segment"},
                                                 {5, "Too large data segment"},
-                                                {6, "Program took too long to finish"}
+                                                {6, "Program took too long to finish"},
+                                                {7, "Invalid opcode encountered"}
 };
 
 
@@ -350,7 +351,10 @@ string Emulator::execute()
                 break;
         
         default:    
-                return ("Invalid opcode");
+                fault = true;
+                fault_cause = faults.find(7)->second;
+                return fault_cause;
+                
                 break;
     }
 

@@ -342,7 +342,6 @@ void Assembler::analyze(string& s)
                 int value = str_to_int(num);
 
                 data_to_reserve[data_addr] = value;
-                
                 l.addr = data_addr;
                 l.line_no = line_cnt;
 
@@ -470,8 +469,8 @@ void Assembler::analyze(string& s)
             if(flag==0)     // okay to reserve memory
             {
                 int a = str_to_int(t1);
-                data_to_reserve[data_addr] = a;
 
+                data_to_reserve[data_addr] = a;
                 struct line aux(s, line_cnt, data_addr);
                 aux.encoding = a;
                 aux_lines.push_back(aux);
