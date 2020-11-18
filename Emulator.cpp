@@ -89,12 +89,15 @@ bool Emulator::loader()     // no size checking has been done now -> just simple
         return false; 
     }
 
-
     text_size = get_int(fi);
+    cout<<text_size<<endl<<endl;
+
+    pc_upper = text_size - 1;
 
     fi.read(&waste, 1);     // dump newline character
 
     unsigned a=0;
+
 
     for(unsigned i=0; i<text_size; ++i)     // load text segment
     {
@@ -102,7 +105,6 @@ bool Emulator::loader()     // no size checking has been done now -> just simple
         ++a;
     }
 
-    pc_upper = a-1;
     data_lower = a;
 
     fi.read(&waste, 1);     // dump newline character
@@ -204,9 +206,6 @@ string Emulator::execute()
     int opcode = (mach_code<<24)>>24;
     int operand = (mach_code & static_cast<int>(0xffffff00)) / 256; // cast required for operations to work correctly work correctly
 
-
-    ++PC;   // PC incremented to point to next instruction
-
     check_PC(PC);
     if(PC>pc_upper)
     {   
@@ -218,6 +217,7 @@ string Emulator::execute()
         return fault_cause;
     }
 
+    ++PC;   // PC incremented to point to next instruction
     switch(opcode)
     {
         case 0:         // ldc value
@@ -490,7 +490,6 @@ string Emulator::reverse_decode(unsigned a) const
 }
 
 
-
 void Emulator::disassemble(ostream& os) const
 {
     for(int i=0; i<text_size; ++i)
@@ -501,11 +500,12 @@ void Emulator::disassemble(ostream& os) const
         os<<setw(10)<<setfill('0')<<i<<setfill(' ')<<"   ";
 
         os<<"Memory Content = ";
-        os<<"0x"<<setw(8)<<hex<<setfill('0')<<mempory_space[i]<<setfill(' ')<<dec<<"   ";
+        os<<"0x"<<setw(8)<<setfill('0')<<hex<<mempory_space[i]<<dec<<setfill(' ')<<"   ";
 
         cout<<" "<<tmp<<endl;
     }
 }
+
 
 
 

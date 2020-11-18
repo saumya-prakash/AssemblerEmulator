@@ -42,7 +42,7 @@ class Emulator          // class for EMULATOR
 
         static const unsigned total_memory = end_address+1;   // TOTAL 16K words memory space
 
-        static const unsigned long long int max_instruction_count = 0xffffffff; // approx. 4 billion instructions can be executed 
+        static const unsigned long long int max_instruction_count = 0x0ffffffff; // approx. 4 billion instructions can be executed 
                                                                                 // before infinite loop exception triggers  
 
         static const char format_code[8];   // to check format of object file provided

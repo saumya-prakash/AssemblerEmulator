@@ -1,5 +1,4 @@
 ; A program to calculate and store the sum of two given numbers
-
 ldc a       ; get address of a
 ldnl 0      ; store a in reg A
 
