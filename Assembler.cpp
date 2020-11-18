@@ -1,5 +1,14 @@
-#include "Assembler.h"
+// Name - Saumya Prakash
+// Roll No. - 1801CS68
 
+/******************************************************************************
+I hereby declare that the following program was solely designed and written by
+the author.
+********************************************************************************/
+
+
+#include "Assembler.h"
+                                            // opcode table
 map<string, pair<unsigned, unsigned> > Assembler::optab = {  
                                             {"ldc", {1, 0}},
                                             {"adc", {1, 1}},
@@ -22,7 +31,7 @@ map<string, pair<unsigned, unsigned> > Assembler::optab = {
                                             {"HALT", {0, 18}}
                                         };
 
-
+                                            // error table
 map<unsigned, string> Error::errtab = {
                                         {0, "Invalid statement"},    /* default error message */
                                         {1, "Invalid label name"},
@@ -38,6 +47,7 @@ map<unsigned, string> Error::errtab = {
                                     };
 
 
+                                            // warning table
 map<unsigned, string> Warning::warntab = {  
                                             {0, "Deafult warning"},
                                             {1, "Unused label"},
@@ -46,11 +56,11 @@ map<unsigned, string> Warning::warntab = {
 
 Assembler::endianess Assembler::machine_type = Assembler::get_endianess();
 
-const char Assembler::format_code[8] = "\\\'\'\"\t\f\b";
+const char Assembler::format_code[8] = "\f\'\'\"\t\f\b";    // code for object file validator
 
 
 
-enum Assembler::endianess Assembler::get_endianess()
+enum Assembler::endianess Assembler::get_endianess()    // get endianess of the machine
 {
     unsigned int a = 1;
 
@@ -67,7 +77,7 @@ enum Assembler::endianess Assembler::get_endianess()
 
 
 
-bool Assembler::valid_number(const string& s) const
+bool Assembler::valid_number(const string& s) const     // checks if a string can be safely converted into a number
 {
     string::const_iterator it = s.begin();
 
@@ -136,7 +146,7 @@ bool Assembler::valid_number(const string& s) const
 }
 
 
-int Assembler::str_to_int(string &num) const
+int Assembler::str_to_int(string &num) const    // converts a string into number form (assumes that string can be converted)
 {
     istringstream iss(num);
 
@@ -173,7 +183,7 @@ int Assembler::str_to_int(string &num) const
 }
 
 
-void Assembler::assemble()
+void Assembler::assemble()      // main assembler function
 {   
     if(assembled==true)
         return;
@@ -181,19 +191,19 @@ void Assembler::assemble()
     lines.clear();
     aux_lines.clear();
     errors.clear();
-    warnings.clear();
+    warnings.clear();       // clears all storages and resets parameters
     reset_pc();
     reset_data_addr();
     reset_line_cnt();
 
-    first_pass();
+    first_pass();       // call for first pass
 
-    second_pass();
+    second_pass();      // call for second pass
 
-    generate_errors();
+    generate_errors();  
     generate_warnings();
     
-    if(errors.empty())
+    if(errors.empty())  // if no errors found, then only generate the onject file
     {
         generate_object_file();
         assembled = true;
@@ -206,7 +216,7 @@ void Assembler::assemble()
 }
 
 
-void Assembler::first_pass()
+void Assembler::first_pass()    // function for first pass
 {
     string s;
 
@@ -237,7 +247,7 @@ void Assembler::first_pass()
     return ;
 }
 
-            /* Note that labels and mnemonics have different namespaces!*/
+            /* Note that labels and mnemonics have different namespaces*/
 
 void Assembler::analyze(string& s)
 {
@@ -339,7 +349,7 @@ void Assembler::analyze(string& s)
                 flag = 1;
             }
 
-            if(flag==0)
+            if(flag==0)     // put the symbol in symtab; add entry in data table
             {
                 int value = str_to_int(num);
 
@@ -374,7 +384,7 @@ void Assembler::analyze(string& s)
             l.line_no = line_cnt;
 
 
-            if(flag==0)
+            if(flag==0)     // insert label in symtab
             { 
                 insert_into_symtab(l);
 
@@ -502,7 +512,7 @@ void Assembler::analyze(string& s)
 
 
 
-void Assembler::second_pass()
+void Assembler::second_pass()       // function for second pass
 {
     for(list<struct line>::iterator it=lines.begin(); it!=lines.end(); ++it)
     {
@@ -527,7 +537,7 @@ void Assembler::second_pass()
 
         if(i_type==0)   // 0-operand mnemonic
         {
-            unsigned res = encode_zeroth(s, opcode, it->line_no);
+            unsigned res = encode_zeroth(s, opcode, it->line_no);   // get encoding for the assembly statement
 
             if(res!=0xffffffff)
                 it->encoding = res;
@@ -535,7 +545,7 @@ void Assembler::second_pass()
 
         else        // 1-operand mnemonic
         {
-            unsigned res = encode_first(s, opcode, it->line_no, it->addr);
+            unsigned res = encode_first(s, opcode, it->line_no, it->addr);  // get encoding for the assembly statement
 
             if(res!=0xffffffff)
                 it->encoding = res;
@@ -567,7 +577,7 @@ void Assembler::generate_warnings()
     }
 }
 
-unsigned Assembler::encode_zeroth(const string& s, const unsigned& opcode, const unsigned& line_no)
+unsigned Assembler::encode_zeroth(const string& s, const unsigned& opcode, const unsigned& line_no) // returns encoding for 0-operand instructions
 {
     istringstream iss(s);
     string t;
@@ -587,7 +597,7 @@ unsigned Assembler::encode_zeroth(const string& s, const unsigned& opcode, const
 }
 
 
-unsigned Assembler::encode_first(const string& s, const unsigned& opcode, const unsigned& line_no, const unsigned& pc)
+unsigned Assembler::encode_first(const string& s, const unsigned& opcode, const unsigned& line_no, const unsigned& pc)  // returns encoding for 1-operand instructions
 {
     istringstream iss(s);
 
@@ -684,9 +694,9 @@ inline int Assembler::calculate_offset(const unsigned& pc, const unsigned& addr)
 
 
 
-void Assembler::insert_into_symtab(struct label& l)
+void Assembler::insert_into_symtab(struct label& l)     // function which inserts into symtab -> does proper checking first
 {
-    if(symtab.find(l.name)!=symtab.end())
+    if(symtab.find(l.name)!=symtab.end())   // duplicate label error
     {
         errors.insert({line_cnt, Error(7)});
     }
@@ -701,7 +711,7 @@ void Assembler::insert_into_symtab(struct label& l)
 
 
 
-bool only_label(const string& s)
+bool only_label(const string& s)    // utility function to check if there is more than a label on a line
 {
     string::const_iterator it = s.begin();
 
@@ -724,7 +734,7 @@ bool only_label(const string& s)
 }
 
 
-void Assembler::generate_listing_file() const
+void Assembler::generate_listing_file() const   // generates lisitng file
 {
     if(errors.empty())
     {
@@ -742,7 +752,7 @@ void Assembler::generate_listing_file() const
 
         lst<<uppercase<<setfill('0');
 
-        while(it!=lines.end() && jt!=aux_lines.end())
+        while(it!=lines.end() && jt!=aux_lines.end())   // pretty prints all the lines of the source file along with memory address and encoding
         {
             if(it->line_no == jt->line_no)
             {
@@ -846,7 +856,7 @@ void Assembler::generate_listing_file() const
 }
 
 
-void Assembler::generate_log_file() const
+void Assembler::generate_log_file() const   // creates log file
 {
     string::size_type ind = filename.find_first_of('.');
 
@@ -854,7 +864,7 @@ void Assembler::generate_log_file() const
 
     ofstream lg(log_name+".log", ofstream::out);
 
-    if(!errors.empty())
+    if(!errors.empty())     // prints errors, if any
     {
         lg<<"Errors -"<<endl;
 
@@ -866,7 +876,7 @@ void Assembler::generate_log_file() const
         lg<<endl;
     }
 
-    if(!warnings.empty())
+    if(!warnings.empty())       // prints warnings, if any
     {
         lg<<"Warnings -"<<endl;
 
@@ -943,7 +953,7 @@ void Assembler::generate_object_file() const    // format_code, newline, text si
 
 
 
-void Assembler::print_bytes(ostream& os, unsigned a) const
+void Assembler::print_bytes(ostream& os, unsigned a) const      // print bytes of an int -> MSB first, then the lower bytes
 {
     char *ptr = (char *) &a;
 

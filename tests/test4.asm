@@ -75,5 +75,5 @@ one:    ldc 1
         adj 3
         return
 ;
-count:  data 20
+count:  data 10
 result: data 0

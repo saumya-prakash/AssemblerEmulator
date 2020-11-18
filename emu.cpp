@@ -24,9 +24,42 @@ void print_options()
     cout<<"\tc - Display number of instructions executed so far"<<endl;
     cout<<"\tu - Disassemble"<<endl;
     cout<<"\td - Show memory dump"<<endl;
+    cout<<"\ti - Show complete ISA"<<endl;
     cout<<"\tx - Quit the emulator"<<endl;
 
     return;
+}
+
+
+void print_ISA()
+{
+    cout<<setw(6)<<"Opcode"<<'\t'<<setw(8)<<"Mnemonic"<<'\t'<<setw(7)<<"Operand"<<'\n';
+
+    cout<<setw(6)<<"0"<<'\t'<<setw(8)<<"ldc"<<'\t'<<setw(7)<<"value"<<'\n';
+    cout<<setw(6)<<"1"<<'\t'<<setw(8)<<"adc"<<'\t'<<setw(7)<<"value"<<'\n';
+    cout<<setw(6)<<"2"<<'\t'<<setw(8)<<"ldl"<<'\t'<<setw(7)<<"offset"<<'\n';
+    cout<<setw(6)<<"3"<<'\t'<<setw(8)<<"stl"<<'\t'<<setw(7)<<"offset"<<'\n';
+    cout<<setw(6)<<"4"<<'\t'<<setw(8)<<"ldnl"<<'\t'<<setw(7)<<"offset"<<'\n';
+    cout<<setw(6)<<"5"<<'\t'<<setw(8)<<"stnl"<<'\t'<<setw(7)<<"offset"<<'\n';
+    cout<<setw(6)<<"6"<<'\t'<<setw(8)<<"add"<<'\t'<<setw(7)<<""<<'\n';
+    cout<<setw(6)<<"7"<<'\t'<<setw(8)<<"sub"<<'\t'<<setw(7)<<""<<'\n';
+    cout<<setw(6)<<"8"<<'\t'<<setw(8)<<"shl"<<'\t'<<setw(7)<<""<<'\n';
+    cout<<setw(6)<<"9"<<'\t'<<setw(8)<<"shr"<<'\t'<<setw(7)<<""<<'\n';
+    cout<<setw(6)<<"10"<<'\t'<<setw(8)<<"adj"<<'\t'<<setw(7)<<"value"<<'\n';
+    cout<<setw(6)<<"11"<<'\t'<<setw(8)<<"a2sp"<<'\t'<<setw(7)<<""<<'\n';
+    cout<<setw(6)<<"12"<<'\t'<<setw(8)<<"sp2a"<<'\t'<<setw(7)<<""<<'\n';
+    cout<<setw(6)<<"13"<<'\t'<<setw(8)<<"call"<<'\t'<<setw(7)<<"offset"<<'\n';
+    cout<<setw(6)<<"14"<<'\t'<<setw(8)<<"return"<<'\t'<<setw(7)<<""<<'\n';
+    cout<<setw(6)<<"15"<<'\t'<<setw(8)<<"brz"<<'\t'<<setw(7)<<"offset"<<'\n';
+    cout<<setw(6)<<"16"<<'\t'<<setw(8)<<"brlz"<<'\t'<<setw(7)<<"offset"<<'\n';
+    cout<<setw(6)<<"17"<<'\t'<<setw(8)<<"br"<<'\t'<<setw(7)<<"offset"<<'\n';
+    cout<<setw(6)<<"18"<<'\t'<<setw(8)<<"HALT"<<'\t'<<setw(7)<<""<<'\n';
+    cout<<'\n';
+    cout<<setw(6)<<""<<'\t'<<setw(8)<<"data"<<'\t'<<setw(7)<<"value"<<'\n';
+    cout<<setw(6)<<""<<'\t'<<setw(8)<<"SET"<<'\t'<<setw(7)<<"value"<<'\n';
+
+
+    cout<<'\n';
 }
 
 
@@ -171,6 +204,10 @@ int main(int argc, char** argv)
                         cout<<endl;
                         break;
 
+            case 'i':   // show ISA
+                        print_ISA();
+                        break;
+            
             case 'x':       // QUIT
                         cout<<"Emulation terminated"<<endl;
                         cout<<endl;

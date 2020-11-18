@@ -1,7 +1,7 @@
 #include "Emulator.h"
 
 
-const char Emulator::format_code[8] = "\\\'\'\"\t\f\b";
+const char Emulator::format_code[8] = "\f\'\'\"\t\f\b";
 
 
 const map<unsigned, pair<unsigned, string> > Emulator::decoder = {  {0, {1, "ldc"}},
@@ -76,7 +76,6 @@ bool Emulator::loader()     // no size checking has been done now -> just simple
     {
         if(aux[i]!=format_code[i])
         {
-            cout<<i<<" ";
             cout<<"Unknown object file format"<<endl;
             return false;
         }
@@ -500,8 +499,6 @@ void Emulator::disassemble(ostream& os) const
 
         os<<"Memory Content = ";
         os<<"0x"<<setw(8)<<setfill('0')<<hex<<mempory_space[i]<<dec<<setfill(' ')<<"   ";
-
-        cout<<" "<<tmp<<endl;
     }
 }
 

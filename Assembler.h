@@ -14,20 +14,20 @@ the author.
 #include <cctype>
 
 #include <utility>
-#include <map>
+#include <map>      // various data structures
 #include <set>
 #include <list>
 
-#include <fstream>
+#include <fstream>  // file stream
 #include <ostream>
-#include <sstream>
+#include <sstream>  // string stream
 
 using std::cin;
 using std::cout;
 
 using std::string;
 using std::map;
-using std::set;
+using std::set;         // proper namespace declararions
 using std::multimap;
 using std::pair;
 using std::list;
@@ -55,8 +55,8 @@ using std::dec;
 
 
 
-class Assembler;
-class Error;
+class Assembler;    
+class Error;        // forward declarations
 class Warning;
 
 struct label;
@@ -102,15 +102,13 @@ struct line     // for storing lines of the source program
 class Assembler     // class for ASSEMBLER
 {
     public:
-        enum endianess {lil_endian, big_endian};
+        enum endianess {lil_endian, big_endian}; // datatype for endianess
 
     private:
-        static const int offset_min = -0x00800000;
-        static const int offset_max = 0x007fffff;
+        static const int offset_min = -0x00800000;  // minimum value representable by 24-bits
+        static const int offset_max = 0x007fffff;   // maximum value represented by 24-bits
 
         static const unsigned pc_lower = 0x0;
-        static const unsigned pc_upper = 0x3ff;
-        static const unsigned data_lower = 0x400;
         static const unsigned address_end = 0xffff;
 
         static const char format_code[8];   // represents magic number for object file
@@ -139,8 +137,8 @@ class Assembler     // class for ASSEMBLER
 
 
     public:
-
-        Assembler(ifstream &a, const string &b): src(a), filename(b), pc(pc_lower), data_addr(data_lower), line_cnt(0), assembled(false), warn(false)   {}
+                                                            // constructor
+        Assembler(ifstream &a, const string &b): src(a), filename(b), pc(pc_lower), data_addr(0), line_cnt(0), assembled(false), warn(false)   {}
 
         void assemble() ;   // assembles the inputted file
 
@@ -150,7 +148,7 @@ class Assembler     // class for ASSEMBLER
         void print_lines(ostream&) const;   
 
         void print_aux_lines(ostream&) const;
-        
+                                                // printer functions
         void print_errors(ostream&) const;
 
         void print_warnings(ostream&) const;
@@ -188,7 +186,7 @@ class Assembler     // class for ASSEMBLER
         int str_to_int(string&) const;
 
         void reset_pc() {pc = pc_lower;}    
-        void reset_data_addr()  {data_addr = data_lower;}
+        void reset_data_addr()  {data_addr = 0;}
         void reset_line_cnt()   {line_cnt = 0;}
 };  
 
@@ -199,7 +197,7 @@ class Error     // class that represents ERRORS in source program
 
     private:
         string message;
-        static map<unsigned, string> errtab;
+        static map<unsigned, string> errtab;    // table of errors that the program can identify
 
         Error(unsigned e): message(errtab[e]) {} 
 
@@ -212,14 +210,10 @@ class Warning   // class for WARNINGS
 {
     friend class Assembler;
     private:
-        static map<unsigned, string> warntab;
+        static map<unsigned, string> warntab;   // table of warnings that the program can raise
         string message;
 
         Warning(unsigned w): message(warntab[w]) {}
-
-        // more careful design required as wanings are usually collected after 
-        // completing the assembling process
-        // Focus on error part first. Warnings can be taken care of later as well.
 
 };  
 

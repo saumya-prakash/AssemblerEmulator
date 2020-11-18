@@ -1,18 +1,7 @@
-ldc num
-ldnl 0
-call recur
-HALT
+lp:     SET -25
 
+br:     SET 25
 
-recur:  adj -1
-        stl 0   ; storing return address on the stack
+br br
 
-        call recur
-
-        ldl 0   ; get return address
-        adj 1   ; restore SP
-
-        return
-
-
-num:    data 1000
+data    0xa
