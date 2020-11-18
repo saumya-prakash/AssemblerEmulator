@@ -466,7 +466,7 @@ string Emulator::reverse_decode(unsigned a) const
     ostringstream oss;
 
     map<unsigned, pair<unsigned, string> >::const_iterator mt = decoder.find(opcode);
-
+                                        // ******** what when an invalid opcode comes?
     string mnem = mt->second.second;    // storing the mnemonic
 
     oss<<mnem;
