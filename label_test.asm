@@ -6,4 +6,5 @@ res:       data 40
 
 j:
 
+ldc 0
 

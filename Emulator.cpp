@@ -94,10 +94,16 @@ bool Emulator::loader()     // no size checking has been done now -> just simple
 
     fi.read(&waste, 1);     // dump newline character
 
+    unsigned a=0;
+
     for(unsigned i=0; i<text_size; ++i)     // load text segment
     {
-        mempory_space[i] = get_int(fi);
+        mempory_space[a] = get_int(fi);
+        ++a;
     }
+
+    pc_upper = a-1;
+    data_lower = a;
 
     fi.read(&waste, 1);     // dump newline character
     fi.read(&waste, 1);     // dump newline character
@@ -108,14 +114,15 @@ bool Emulator::loader()     // no size checking has been done now -> just simple
 
     for(unsigned i=0; i<data_size; ++i)
     {
-        mempory_space[i+data_lower] = get_int(fi);
+        mempory_space[a] = get_int(fi);
+        ++a;
     }
 
+    data_upper = a-1;
 
     PC = 0x00000000;     // set PC to 0x0
     A = 0x00000000;
     B = 0x00000000;
-    data_upper = data_lower + data_size - 1;    // denotes upper boundary of data loaded
     SP = 0xff00;    // set SP to ?? NOT CONFIRMED
 
 

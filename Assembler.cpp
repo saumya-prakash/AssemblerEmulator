@@ -190,6 +190,7 @@ void Assembler::assemble()
 
     second_pass();
 
+    generate_errors();
     generate_warnings();
     
     if(errors.empty())
@@ -342,7 +343,7 @@ void Assembler::analyze(string& s)
             {
                 int value = str_to_int(num);
 
-                data_to_reserve[pc] = value;
+                data_to_reserve[line_cnt] = value;
                 
                 l.addr = pc;
                 l.line_no = line_cnt;
@@ -472,7 +473,7 @@ void Assembler::analyze(string& s)
             {
                 int a = str_to_int(t1);
 
-                data_to_reserve[pc] = a;
+                data_to_reserve[line_cnt] = a;
                 
                 struct line aux(s, line_cnt, pc);
                 aux.encoding = a;
@@ -545,6 +546,17 @@ void Assembler::second_pass()
     return ;
 }
 
+
+void Assembler::generate_errors()
+{
+    unsigned last = lines.back().line_no;
+
+    for(map<unsigned, unsigned>::const_iterator mt=data_to_reserve.begin(); mt!=data_to_reserve.end(); ++mt)
+    {
+        if(mt->first < last)
+            errors.insert({mt->first, Error(10)});
+    }
+}
 
 void Assembler::generate_warnings()
 {
@@ -890,15 +902,18 @@ void Assembler::generate_object_file() const    // format_code, newline, text si
     fo.write(&nwln, 1);
 
 
-    unsigned text_size = pc;
+    unsigned total_size = pc;
+    
     unsigned data_size = data_to_reserve.size();    // more generic way to get data segment size
+    unsigned text_size = pc - data_size;
+
 
     print_bytes(fo, text_size);
     fo.write(&nwln, 1);
 
     list<struct line>::const_iterator it = lines.begin();
 
-    for(unsigned i=0; i<pc; ++i)    // put text segment first
+    for(unsigned i=0; i<text_size; ++i)    // put text segment first
     {
         unsigned a = it->encoding;
         ++it;

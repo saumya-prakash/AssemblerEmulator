@@ -169,6 +169,7 @@ class Assembler     // class for ASSEMBLER
         void analyze(string&);  // analyzes lines in first pass - labels, SET directive, data directive
         void second_pass();     // second pass
 
+        void generate_errors();
         void generate_warnings();
 
         void generate_object_file() const;

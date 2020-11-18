@@ -38,8 +38,6 @@ class Emulator          // class for EMULATOR
     private:
     
         static const unsigned pc_lower = 0x0;      // PC start address
-        static const unsigned pc_upper = 0x3ff;    // PC end address    - TOTAL 1K words text segment
-        static const unsigned data_lower = 0x400;                                                
         static const unsigned end_address = 0xffff;    
 
         static const unsigned total_memory = end_address+1;   // TOTAL 16K words memory space
@@ -59,7 +57,10 @@ class Emulator          // class for EMULATOR
         int A, B;           // internal registers
         int PC, SP;         // Program Counter and Stack Pointer
         int *mempory_space;   // 16k words memory space
+        int pc_upper;
+        int data_lower;
         int data_upper;
+        
 
         unsigned long long int instr_cnt;   // to store number of instructions executed so far 
                                   
@@ -73,7 +74,7 @@ class Emulator          // class for EMULATOR
         string fault_cause; // stores the reason of fault and the instruction at which fault occurred
 
     public:
-        Emulator(const string& s): obj_filename(s), A(0), B(0), PC(0), SP(0), mempory_space(new int[total_memory]), data_upper(data_lower-1), instr_cnt(0), finished(false), fault(false), fault_cause(string()) {}     // PC and SP will be put to corect values by the loader
+        Emulator(const string& s): obj_filename(s), A(0), B(0), PC(0), SP(0), mempory_space(new int[total_memory]), pc_upper(-1), data_lower(0), data_upper(0), instr_cnt(0), finished(false), fault(false), fault_cause(string()) {}     // PC and SP will be put to corect values by the loader
         ~Emulator() { delete [] mempory_space; }
 
         bool loader();  // loads machine code into memory_space
