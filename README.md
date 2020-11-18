@@ -6,6 +6,9 @@ The assembler flags errors and raises warnings. If assembly is successful, a lis
 
 The object file generated is executable on the included Emulator only.
 
-There is no linking multiple object-files functionality available. Every program has to be contained in a single source file only.  
+There is no linking multiple object-files functionality available. Every program has to be contained in a single source file only.
+
+
+A program consists of code segment, followed by data directives. Functions and procedures should be declared after the 'main' part. There is no separate directive for function declaration.
  
 
