@@ -494,7 +494,7 @@ void Emulator::disassemble(ostream& os) const
         os<<setw(10)<<setfill('0')<<i<<setfill(' ')<<"   ";
 
         os<<"Memory Content = ";
-        os<<"0x"<<setw(8)<<hex<<setfill('0')<<mempory_space[i]<<setfill(' ')<<dec<<"   ";
+        os<<"0x"<<setw(8)<<setfill('0')<<hex<<mempory_space[i]<<dec<<setfill(' ')<<"   ";
 
         cout<<" "<<tmp<<endl;
     }
@@ -539,21 +539,15 @@ string Emulator::current_state() const
 {
     ostringstream oss;
 
-    oss<<left;
-
-    oss<<"PC = "<<setw(11)<<PC<<"   ";
-
-    oss<<"SP = "<<setw(11)<<SP<<"   ";
-
-    oss<<"A = "<<setw(11)<<A<<"   ";
-
-    oss<<"B = "<<setw(11)<<B<<"   ";
+    oss<<setw(11)<<"PC = "<<PC<<"   ";
+    oss<<setw(11)<<"SP = "<<SP<<"   ";
+    oss<<setw(11)<<"A = "<<A<<"   ";
+    oss<<setw(11)<<"B = "<<B<<"   ";
     
-    oss<<"Memory Content = "<<"0x"<<setw(8)<<hex<<setfill('0')<<mempory_space[PC]<<setfill(' ')<<dec<<"   ";
+    oss<<"Memory Content = "<<"0x"<<setw(8)<<setfill('0')<<hex<<mempory_space[PC]<<dec<<setfill(' ')<<"   ";
 
     oss<<" "<<reverse_decode(mempory_space[PC]);
 
-    oss<<right;
 
     return oss.str();
 
