@@ -90,7 +90,6 @@ bool Emulator::loader()     // no size checking has been done now -> just simple
     }
 
     text_size = get_int(fi);
-    cout<<text_size<<endl<<endl;
 
     pc_upper = text_size - 1;
 
