@@ -33,7 +33,8 @@ map<unsigned, string> Error::errtab = {
                                         {6, "Too many operands"},
                                         {7, "Duplicate label name"},
                                         {8, "Number expected"},
-                                        {9, "Too few operands"}
+                                        {9, "Too few operands"},
+                                        {10, "data directive should come after the code segment"}
                                     };
 
 
@@ -341,16 +342,17 @@ void Assembler::analyze(string& s)
             {
                 int value = str_to_int(num);
 
-                data_to_reserve[data_addr] = value;
-                l.addr = data_addr;
+                data_to_reserve[pc] = value;
+                
+                l.addr = pc;
                 l.line_no = line_cnt;
-
                 insert_into_symtab(l);
                 
-                struct line aux(s, line_cnt, data_addr);
+                struct line aux(s, line_cnt, pc);
                 aux.encoding = value;
                 aux_lines.push_back(aux);
 
+                pc++;
                 data_addr++;     // incrementing by 1 as it is a word-addressable machine
             }
 
@@ -470,11 +472,13 @@ void Assembler::analyze(string& s)
             {
                 int a = str_to_int(t1);
 
-                data_to_reserve[data_addr] = a;
-                struct line aux(s, line_cnt, data_addr);
+                data_to_reserve[pc] = a;
+                
+                struct line aux(s, line_cnt, pc);
                 aux.encoding = a;
                 aux_lines.push_back(aux);
 
+                pc++;
                 data_addr++;
             }
 
