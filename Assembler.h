@@ -122,19 +122,18 @@ class Assembler     // class for ASSEMBLER
         list<struct line> lines;       // stores lines required in pass-2
         list<struct line> aux_lines;    // stores lines that are not required in pass-2
 
-        unsigned pc, data_addr, line_cnt;    // program counter, data_addr, and line counter
-
 
         ifstream &src;      // reference to the openend file stream for reading
         string filename;    // to store the filename -> will be used to name output files
+        unsigned pc, data_addr, line_cnt;    // program counter, data_addr, and line counter
+        bool assembled;     // stores result of assembly process
+        bool warn;
 
 
         multimap<unsigned, class Error> errors;    // stores errors line no. wise
         multimap<unsigned, class Warning> warnings; // stores warnings (some with line number, some independent)
 
-        bool assembled;     // stores result of assembly process
-        bool warn;
-
+        
 
     public:
                                                             // constructor

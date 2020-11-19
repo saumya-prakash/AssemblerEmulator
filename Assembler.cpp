@@ -903,7 +903,7 @@ void Assembler::generate_object_file() const    // format_code, newline, text si
 
     const char nwln = '\n';
 
-    const char* ptr = format_code;  // writing format_code
+    // const char* ptr = format_code;  // writing format_code
     for(unsigned i=0; i<8; ++i)
     {
         fo.write(format_code+i, 1);
@@ -912,7 +912,7 @@ void Assembler::generate_object_file() const    // format_code, newline, text si
     fo.write(&nwln, 1);
 
 
-    unsigned total_size = pc;
+    // unsigned total_size = pc;
     
     unsigned data_size = data_to_reserve.size();    // more generic way to get data segment size
     unsigned text_size = pc - data_size;

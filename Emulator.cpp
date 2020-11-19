@@ -507,7 +507,7 @@ void Emulator::disassemble(ostream& os) const
 
 void Emulator::memory_dump(ostream& os) const
 {
-    int per_line = 4;
+    // int per_line = 4;
 
     os<<hex<<showbase;
 

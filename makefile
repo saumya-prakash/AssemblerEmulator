@@ -1,5 +1,5 @@
 CC = g++
-FLAGS = -g
+FLAGS = -pedantic -W -Wall -Wpointer-arith -Wwrite-strings
 
 
 target:	asm emu
