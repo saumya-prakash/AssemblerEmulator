@@ -30,3 +30,15 @@ The assembly language is for a machine with 4 registers:
 **_NOTE:_** The instructions semantics do not show the incrementing of the _PC_ to the next instruction. This is implicitly performed by each instruction before the actions of the instruction are done.
 
 
+| Mnemonic | Opcode | Operand | Formal Specification | Description |
+|----------|--------|---------|----------------------|-------------|
+| data | | value | | Reserves a memory location initialized to the value specified |
+| ldc | 0 | value | B:=A; A:=value; | Load accumulator with the value specified |
+| adc | 1 | value | A := A + value; | Add the value specified to the accumulator |
+| ldl | 2 | offset | B := A; A := memory[SP+offset]; | Load local |
+| stl | 3 | offset | memory[SP+offset] := A; A := B | Store local |
+| ldnl | 4 | offset | A := memory[A+offset]; | Load non-local |
+| stnl | 5 | offset | memory[A+offset] := B; | Store non-local |
+| add | 6 | | A := B+A | Addition |
+
+
